@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using AE.Core.Generics;
 using AE.InputManagement;
@@ -28,6 +29,7 @@ namespace Terra.Player
         [SerializeField] private Vector2 movementInput;
         [SerializeField] private Vector3 moveDirection = Vector3.zero;
         [SerializeField] private float _cameraAngleX;
+        [SerializeField] private Vector2 mouseInput;
         
         private CharacterController characterController;
         private InputSystem.PlayerActions inputActions;
@@ -59,16 +61,19 @@ namespace Terra.Player
             if (!PlayerManager.Instance)
             {
                 return;
-            }
-            
+            } 
             if(CanPlayerRotate) RotateCharacter();
+        }
+
+        private void FixedUpdate()
+        {
             if(CanPlayerMove) HandleMovement();
         }
 
         private void RotateCharacter()
         {
-            var mouseInput = inputActions.Look.ReadValue<Vector2>();
-            
+            mouseInput = inputActions.Look.ReadValue<Vector2>();
+
             // Rotate player transform on horizontal axis
             transform.Rotate(new Vector3(0, mouseInput.x * _cameraSensitivity, 0));
 
@@ -87,10 +92,10 @@ namespace Terra.Player
             Vector3 right = transform.right * movementInput.x;
             
             // Compuet direction
-            moveDirection = (forward + right) * walkSpeed;
+            moveDirection = (forward + right) * walkSpeed;  
 
             // Adds gravity
-            if (!characterController.isGrounded) moveDirection.y -= gravity * Time.deltaTime;
+            if (!characterController.isGrounded) moveDirection.y -= gravity;
             
             else moveDirection.y = 0;
             
