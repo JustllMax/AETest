@@ -9,5 +9,6 @@ EditorBuildSettings:
     path: Assets/SimpleDungeons/Scenes/Demo.unity
     guid: c69974a43b267f84a978b3e7cc0c0591
   m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.input.settings: {fileID: 11400000, guid: 3dafc55e3f4b64f4b8622008357a01e2, type: 2}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: a00841353102d6c479da00610fe6e52d, type: 3}
   m_UseUCBPForAssetBundles: 0
