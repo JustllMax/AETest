@@ -20,21 +20,6 @@ namespace AE.Interfaces
         /// </summary>
         public void Interact();
         
-        /// <summary>
-        /// Called after interaction
-        /// </summary>
-        public void OnInteraction();
-
-        /// <summary>
-        /// Called when is ready to be interacted with by Player
-        /// </summary>
-        public void ShowVisualisation();
-
-
-        /// <summary>
-        /// Stop all visualisation
-        /// </summary>
-        public void StopVisualization();
-
+        
     }
 }

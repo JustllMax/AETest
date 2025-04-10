@@ -1,0 +1,71 @@
+using System;
+using AE.Interfaces;
+using AE.Managers;
+using UnityEngine;
+
+namespace AE
+{
+    public abstract class InteractableWithItem<TItem> : InteractableBase, IWithSetUp
+        where TItem : InteractableItem
+    {
+        TItem _item;
+        public TItem Item => _item;
+
+        [SerializeField] private string attachedItemInteractionText;
+        protected abstract bool RequiresSpecialItemType { get; }
+        protected Type RequiredItemType;
+
+        public bool HasItem => Item != null;
+        public override bool CanBeInteractedWith { get; }
+        
+        public virtual void SetUp()
+        {
+            RequiredItemType = typeof(TItem);
+        }
+
+
+        public void UseItem(TItem item)
+        {
+            if (item == null) return;
+            
+            if (RequiresSpecialItemType)
+            {
+                if (item.GetType() != RequiredItemType)
+                {
+                    IncorrectInteraction();
+                    return;
+                }
+            } 
+            
+            _item = item;
+            _item.OnPickedUp += DetachItem;
+            OnItemUsed(_item);
+        }
+
+        protected virtual void OnItemUsed(TItem item){}
+
+        protected virtual void OnDetachItem(){}
+        public void DetachItem()
+        {
+            OnDetachItem();
+            
+            _item.OnPickedUp -= DetachItem;
+            _item = null;
+        }
+        public override void OnInteraction()
+        {
+            if (HasItem) InteractionWithItemAttached();
+            else DefaultInteraction();
+        }
+
+        protected virtual void InteractionWithItemAttached()
+        {
+            TextManager.Instance.ShowText(attachedItemInteractionText);
+        }
+
+        public virtual void TearDown()
+        {
+            
+        }
+    }
+}
