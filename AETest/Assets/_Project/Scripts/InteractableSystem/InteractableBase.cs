@@ -10,8 +10,7 @@ using UnityEngine;
 /// </summary>
 public abstract class InteractableBase : InGameMonoBehaviour, IInteractable
 {
-    public abstract bool CanBeInteractedWith { get; }
-    public virtual bool CanShowVisualisation { get; set; }
+    public abstract bool CanBeInteractedWith { get; protected set;}
     
     [SerializeField] protected string itemDescription;
     [SerializeField] protected string incorrectInteractionText;

@@ -135,17 +135,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lightMode: 1
-  pulseColor: {r: 1, g: 0.18813568, b: 0, a: 1}
-  pulseTemperature: 0
-  pulseFrequencyRange: {x: 1, y: 1}
-  pulseDuration: 2
-  pulsatingIntensityModifier: 1.4
-  pulsatingRangeModifier: 1
+  pulseData:
+    pulseColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    pulseTemperature: 0
+    pulseFrequencyRange: {x: 1, y: 1}
+    pulseDuration: 1
+    pulsatingIntensityModifier: 2.5
+    pulsatingRangeModifier: 1.25
   _light: {fileID: 0}
   baseIntensity: 0
   baseRange: 0
   baseTemperature: 0
   baseColor: {r: 0, g: 0, b: 0, a: 0}
+  currentColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &2147298770687942468
 GameObject:
   m_ObjectHideFlags: 0
@@ -159,6 +161,7 @@ GameObject:
   - component: {fileID: 2147298770685612902}
   - component: {fileID: 2147298770695427416}
   - component: {fileID: 2102900433273935126}
+  - component: {fileID: 6658197500938925844}
   m_Layer: 0
   m_Name: Hint_Gem
   m_TagString: Untagged
@@ -280,6 +283,22 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 43542348041639512, guid: 6d799d0f5ad33504f8794e115081a6ce, type: 2}
+--- !u!114 &6658197500938925844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147298770687942468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23cae6f114ef006429bcc25b7b4e15b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hintSkullType: 0
+  notCorrectLight: {fileID: 4407996965163993468}
+  correctLight: {fileID: 1565444620278501509}
+  isCorrect: 0
 --- !u!1 &4407996965163993468
 GameObject:
   m_ObjectHideFlags: 0

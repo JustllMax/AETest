@@ -16,23 +16,22 @@ namespace AE.Managers
 
         CancellationTokenSource cts = new CancellationTokenSource();
 
+        private bool isDuringDisplay = false;
         private string currentText;
         public void ShowText(string text)
         {
-              ClearText();
+              if(isDuringDisplay) ClearText();
               StartTextDisplay(text, cts.Token).Forget();
         }
 
         private async UniTaskVoid StartTextDisplay(string text, CancellationToken token)
         {
+            isDuringDisplay = true;
             textContainer.SetActive(true);
             currentText = string.Empty;
 
             try
             {
-
-
-
                 for (int i = 0; i < text.Length; i++)
                 {
                     currentText += text[i];
@@ -44,6 +43,7 @@ namespace AE.Managers
                 }
 
                 await UniTask.WaitForSeconds(disappearDelay, cancellationToken: token);
+                ClearText();
             }
             catch (OperationCanceledException)
             {
@@ -54,6 +54,7 @@ namespace AE.Managers
 
         public void ClearText()
         {
+            isDuringDisplay = false;
             cts.Cancel();
             SetText(string.Empty);
             textContainer.SetActive(false);

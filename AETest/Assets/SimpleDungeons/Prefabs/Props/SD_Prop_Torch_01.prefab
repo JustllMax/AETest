@@ -13,7 +13,8 @@ GameObject:
   - component: {fileID: 2352374}
   - component: {fileID: 9594020}
   - component: {fileID: 64079002430255724}
-  m_Layer: 0
+  - component: {fileID: 5185662682607733161}
+  m_Layer: 7
   m_Name: SD_Prop_Torch_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34,6 +35,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8106152978697751298}
+  - {fileID: 9203504288151345594}
+  - {fileID: 5989792445580344700}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3311192
@@ -134,6 +137,58 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 43081527694497710, guid: d3724de6480da954a8da9d64fad984f5, type: 2}
+--- !u!114 &5185662682607733161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10f321fc4d9e3f5439654b8fd487b39e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemDescription: Something could be placed on top
+  incorrectInteractionText: This doesn't fit
+  correctInteractionText: That should do it
+  attachedItemInteractionText: There is already something attached
+  _lightComponent: {fileID: 8442482116126801823}
+  requiredSkullType: 0
+  attachDuration: 1
+  attachSkullStartTransform: {fileID: 9203504288151345594}
+  attachSkullEndTransform: {fileID: 5989792445580344700}
+--- !u!1 &5544456089860764864
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9203504288151345594}
+  m_Layer: 7
+  m_Name: SkullAttachStart
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9203504288151345594
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5544456089860764864}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.17364816, y: 0, z: 0, w: 0.9848078}
+  m_LocalPosition: {x: 0, y: 1.313, z: 0.929}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 454800}
+  m_LocalEulerAnglesHint: {x: 20, y: 0, z: 0}
 --- !u!1 &8785645803577472107
 GameObject:
   m_ObjectHideFlags: 0
@@ -146,7 +201,7 @@ GameObject:
   - component: {fileID: 585886999763472860}
   - component: {fileID: 4983990763188497293}
   - component: {fileID: 8442482116126801823}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -247,7 +302,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Version: 3
   m_UsePipelineSettings: 1
-  m_AdditionalLightsShadowResolutionTier: 2
+  m_AdditionalLightsShadowResolutionTier: 0
   m_LightLayerMask: 1
   m_RenderingLayers: 1
   m_CustomShadowLayers: 0
@@ -255,7 +310,7 @@ MonoBehaviour:
   m_ShadowRenderingLayers: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
-  m_SoftShadowQuality: 0
+  m_SoftShadowQuality: 1
 --- !u!114 &8442482116126801823
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,14 +324,47 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lightMode: 1
-  pulseColor: {r: 1, g: 1, b: 1, a: 1}
-  pulseTemperature: 2200
-  pulseFrequencyRange: {x: 0.5, y: 2}
-  pulseDuration: 1
-  pulsatingIntensityModifier: 1.2
-  pulsatingRangeModifier: 1.1
+  pulseData:
+    pulseColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    pulseTemperature: 2137
+    pulseFrequencyRange: {x: 5, y: 10}
+    pulseDuration: 1
+    pulsatingIntensityModifier: 1
+    pulsatingRangeModifier: 1
   _light: {fileID: 0}
   baseIntensity: 0
   baseRange: 0
   baseTemperature: 0
   baseColor: {r: 0, g: 0, b: 0, a: 0}
+  currentColor: {r: 0, g: 0, b: 0, a: 0}
+--- !u!1 &9184516382812329680
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5989792445580344700}
+  m_Layer: 7
+  m_Name: SkullAttachEnd
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5989792445580344700
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9184516382812329680}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.17364816, y: 0, z: 0, w: 0.9848078}
+  m_LocalPosition: {x: -0.04, y: 0.53, z: 0.65}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 454800}
+  m_LocalEulerAnglesHint: {x: 20, y: 0, z: 0}

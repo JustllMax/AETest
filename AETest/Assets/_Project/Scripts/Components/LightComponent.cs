@@ -45,11 +45,11 @@ namespace AE
 
         public PulseData PulseData => pulseData;
         
-        private CancellationTokenSource _cts;
+        private CancellationTokenSource _cts = new CancellationTokenSource();
         
         public Light Light => _light;
         
-
+        Tween colorChangeTween;
         private float PulseRange => pulseData.pulsatingRangeModifier * baseRange;
         private float PulseIntensity => pulseData.pulsatingIntensityModifier * baseIntensity;
 
@@ -111,22 +111,19 @@ namespace AE
 
         private void StopPulse()
         {
-            //DOTween.Kill(this);
             if (_cts != null && !_cts.IsCancellationRequested)
             {
                 _cts.Cancel();
-                _cts.Dispose();
             }
         }
          
         private void PulseLight()
         {
             StopPulse();
-            _cts = new CancellationTokenSource();
-            LoopPulse(_cts.Token);
+            LoopPulse(_cts.Token).Forget();
         }
 
-        private async UniTask LoopPulse(CancellationToken token)
+        private async UniTaskVoid LoopPulse(CancellationToken token)
         {
             try
             {
@@ -159,13 +156,14 @@ namespace AE
             // Color
             else sequence.Join(_light.DOColor(pulseData.pulseColor, halfDuration));
             
-
             // Range
             sequence.Join(DOTween.To(() => _light.range, x => _light.range = x, PulseRange, halfDuration));
 
             try
             {
-                await sequence.AsyncWaitForCompletion();
+                await sequence.AsyncWaitForCompletion()
+                    .AsUniTask()
+                    .AttachExternalCancellation(token);
             }
             catch (OperationCanceledException)
             {
@@ -184,7 +182,7 @@ namespace AE
             if (_light.useColorTemperature)
                 sequence.Join(DOTween.To(() => _light.colorTemperature, x => _light.colorTemperature = x, baseTemperature, halfDuration));
             // Color
-            else sequence.Join(_light.DOColor(baseColor, halfDuration));
+            else sequence.Join(_light.DOColor(currentColor, halfDuration));
 
             // Range
             sequence.Join(DOTween.To(() => _light.range, x => _light.range = x, baseRange, halfDuration));
@@ -208,13 +206,19 @@ namespace AE
         }
 
         public void ResetColorToDefault() => SetCurrentColor(baseColor);
-        public void SetCurrentColor(Color color)
+        public void SetCurrentColor(Color color, float colorDurationChange = 1f)
         {
+            colorChangeTween?.Kill();
+            
             currentColor = color;
+            
+            colorChangeTween = _light.DOColor(currentColor, colorDurationChange);
         }
         private void OnDestroy()
         {
             StopPulse();
+            colorChangeTween?.Kill();
+            _cts.Dispose();
         }
     }
     

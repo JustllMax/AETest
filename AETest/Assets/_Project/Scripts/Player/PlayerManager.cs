@@ -8,7 +8,6 @@ namespace AE.Player
     public class PlayerManager : MonoBehaviourSingleton<PlayerManager>, IWithSetUp, IAttachListeners
     {
         [SerializeField] private PlayerMovement playerMovement;
-        [SerializeField] private Transform pickupContainer;
         [SerializeField] private PlayerInteractionController interactionController;
         
         public PlayerMovement PlayerMovement => playerMovement;

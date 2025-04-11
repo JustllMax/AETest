@@ -153,6 +153,7 @@ GameObject:
   - component: {fileID: 5780220553142313282}
   - component: {fileID: 5780220553141092148}
   - component: {fileID: 5824521335369377068}
+  - component: {fileID: 2970921852835223094}
   m_Layer: 0
   m_Name: SkullWithEyes
   m_TagString: Untagged
@@ -251,6 +252,26 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 43171451587747746, guid: cc827bb516461f241ae145007690a20d, type: 2}
+--- !u!114 &2970921852835223094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5780220553139279976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24a5357c3b5767648afd53717a9ae14a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemDescription: Default Test Skull
+  incorrectInteractionText: Wrong test skull
+  correctInteractionText: Good test sku;;
+  heldPosition: {x: 0.85, y: -0.6, z: 0.75}
+  heldRotation: {x: -20, y: 214.99998, z: -5}
+  skullType: 3
+  startPulseColor: {r: 0.58573383, g: 0, b: 0.8113208, a: 1}
+  endPulseColor: {r: 0.7198067, g: 0, b: 1, a: 1}
 --- !u!1 &7040705614198654441
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,50 +1,82 @@
 using System;
 using AE.Core.Generics;
+using AE.InputManagement;
 using AE.Interfaces;
 using AE.Managers;
+using AE.Puzzles.TorchSkullPuzzle.Objects.InteractableItems;
+using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-namespace AE
+namespace AE.Player
 {
     [Serializable]
-    public class PlayerInteractionController : InGameMonoBehaviour
+    public class PlayerInteractionController : InGameMonoBehaviour, IAttachListeners
     {
-        [SerializeField] private Transform raycastFirePoint;
+
         [SerializeField] private string incorrectPickupInteractionText = "Cannot interact with this";
         [SerializeField] private Transform pickupTransform;
-        private InteractableItem currentItem;
+       
+        [Foldout("Debug"), ReadOnly] [SerializeField] private InteractableItem currentItem = null;
+        [Foldout("Debug"), ReadOnly] [SerializeField] private GameObject currentPlayerTarget = null;
+        
         public InteractableItem Item => currentItem;
-
-
-        [SerializeField] private float interactionRange = 10;
-        [SerializeField] private LayerMask targetLayer;
-        private bool CanPickupItem => currentItem != null;
+        private bool CanPickupItem => currentItem == null;
         
-        //TODO: Add input callbacks
-        //TODO: Add HighlightManager and move raycast logic there, then get item from that manager and check for type
-        
-        private void Update()
+        public void AttachListeners()
         {
-            if(TryPickupItem()) return;
-
-            TryInteractWithObject();
+            PlayerRaycastController.OnPlayerTargetChanged += OnPlayerTargetChanged;
+            InputManager.Instance.PlayerControls.Attack.performed += OnPlayerInteractionButton;
+            InputManager.Instance.PlayerControls.Interact.performed += OnPlayerInteractionButton;
+            InputManager.Instance.PlayerControls.Aim.performed += OnPlayerRMB;
         }
 
+        private void OnPlayerTargetChanged(GameObject newTarget)
+        {
+            currentPlayerTarget = newTarget;
+        }
+
+        /// <summary>
+        /// Handles interaction with items
+        /// </summary>
+        private bool TryUseItem()
+        {
+            if(Item == null) return false;
+
+            if (TryGet(out InteractableWithItem<InteractableSkull> usableItem))
+            {
+                Debug.Log($"found a usable item {usableItem.name}");
+                usableItem?.UseItem(Item as InteractableSkull);
+                return true;
+            }
+            Debug.Log($"Not found a usable item");
+
+            return false;
+        }
+        
         /// <summary>
         /// Handles interaction with items
         /// </summary>
         private bool TryPickupItem()
         {
 
-            if (CheckForPickup(out InteractableItem newItem))
+            if (TryGet(out InteractableItem newItem))
             {
-                // If item can be picked up, pick it up
-                if (CanPickupItem && newItem.CanBePickedUp) Pickup(newItem);
-                // If item cannot be picked up, try interacting with it
-                else if (newItem.CanBeInteractedWith) newItem.Interact();
-                // Show incorrect interaction
-                else IncorrectInteraction();
-                return true;
+                if (CanPickupItem)
+                {
+                    // If item can be picked up, pick it up
+                    if (newItem.CanBePickedUp) Pickup(newItem);
+                    // If item cannot be picked up, try interacting with it
+                    else  newItem.Interact();
+                    return true;
+                }
+                else
+                {
+                    // Show incorrect interaction
+                    IncorrectInteraction();
+                    return true;
+                }
+
             }
             return false;
         }
@@ -54,7 +86,7 @@ namespace AE
         /// </summary>
         private bool TryInteractWithObject()
         {
-            if (CheckForInteractable(out InteractableBase interactable))
+            if (TryGet(out InteractableBase interactable))
             {
                 if(interactable.CanBeInteractedWith) interactable.Interact();
                 else IncorrectInteraction();
@@ -64,47 +96,40 @@ namespace AE
         /// <summary>
         /// Handles raycasts and checks for pickupable items
         /// </summary>
-        private bool CheckForPickup(out InteractableItem interactableItem)
+        private bool TryGet<TInteractable>(out TInteractable foundInteractable)
+        where TInteractable : InteractableBase
         {
-            interactableItem = null;
-            RaycastHit[] hits = new RaycastHit[1];
-            Physics.RaycastNonAlloc(raycastFirePoint.position, raycastFirePoint.forward, hits, interactionRange, targetLayer);
+            foundInteractable = null;
+         
+            if(currentPlayerTarget == null) return false;
             
-            // No hits
-            if(!hits[0].collider) return false;
-            
-            hits[0].collider.TryGetComponent(out interactableItem);
-            
-            return interactableItem;
+            if (currentPlayerTarget.TryGetComponent(out InteractableBase interactable))
+            {
+                if (interactable is not TInteractable searchedInteractable) return false;
+                
+                foundInteractable = searchedInteractable;
+                return true;
+
+            }
+            return false;
         }
         
-
-        /// <summary>
-        /// Handles raycasts and checks for interactable objects
-        /// </summary>
-        private bool CheckForInteractable(out InteractableBase interactable)
-        {
-            interactable = null;
-            RaycastHit[] hits = new RaycastHit[1];
-            Physics.RaycastNonAlloc(raycastFirePoint.position, raycastFirePoint.forward, hits, interactionRange, targetLayer);
-            
-            // No hits
-            if(!hits[0].collider) return false;
-            
-            hits[0].collider.TryGetComponent(out interactable);
-            
-            return interactable;
-        }
+        
 
         /// <summary>
         /// Handles pickup logic
         /// </summary>
         private void Pickup(InteractableItem newItem)
         {
-            //TODO: Possibly add swaping items
-            //Drop();
+            // Cache item
             currentItem = newItem;
+            
+            // Call pickup
             currentItem?.Pickup(pickupTransform);
+            
+            // If item was attached to something, detach it
+            if(currentItem is AttachableItem attachableItem)
+                attachableItem.Detach();
         }
 
         /// <summary>
@@ -112,10 +137,17 @@ namespace AE
         /// </summary>
         private void Drop()
         {
-            //TODO: Get position by player and rotation facing player
-            currentItem?.Drop(Vector3.zero, Vector3.zero);
+            (Vector3, Vector3) dropData = GetRandomGroundPositionAndRotation(transform, 1.5f, 2);
+            currentItem?.Drop(dropData.Item1, dropData.Item2);
+            ClearCurrentItem();
         }
 
+        
+        /// <summary>
+        /// Clears out currently held item
+        /// </summary>
+        private void ClearCurrentItem() => currentItem = null;
+        
         /// <summary>
         /// Displays information for player on incorrect interaction
         /// </summary>
@@ -123,6 +155,75 @@ namespace AE
         {
             TextManager.Instance.ShowText(incorrectPickupInteractionText);
         }
+
+
+
+        public void DetachListeners()
+        {            
+            PlayerRaycastController.OnPlayerTargetChanged -= OnPlayerTargetChanged;
+            if (InputManager.Instance)
+            {
+                InputManager.Instance.PlayerControls.Attack.performed -= OnPlayerInteractionButton;
+                InputManager.Instance.PlayerControls.Interact.performed -= OnPlayerInteractionButton;
+                InputManager.Instance.PlayerControls.Aim.performed -= OnPlayerRMB;
+            }
+        }
+
+        private void OnPlayerInteractionButton(InputAction.CallbackContext context)
+        {
+            if (TryUseItem())
+            {
+                ClearCurrentItem();
+                return;
+            }
+            if(TryPickupItem()) return;
+            TryInteractWithObject();
+        }
         
+        private void OnPlayerRMB(InputAction.CallbackContext context)
+        {
+            Drop();
+        }
+        
+        
+        /// <summary>
+        /// Creates a donut shaped ring, then sends raycast 
+        /// </summary>
+        /// <param name="center">Center of the ring</param>
+        /// <param name="minRadius">Inner radius</param>
+        /// <param name="maxRadius">Outer radius</param>
+        /// <returns>Hit position and rotation towards center</returns>
+        (Vector3 position, Vector3 rotation) GetRandomGroundPositionAndRotation(Transform center, float minRadius, float maxRadius)
+        {
+            LayerMask groundLayer = LayerMask.GetMask("Environment");
+            
+            const int maxAttempts = 5;
+            
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+
+                // Pick a random point in a ring (between minRadius and maxRadius)
+                float distance = UnityEngine.Random.Range(minRadius, maxRadius);
+
+                Vector2 randomCircle = UnityEngine.Random.insideUnitCircle.normalized * distance;
+
+                // Start position 2 units above
+                Vector3 samplePos = center.position + new Vector3(randomCircle.x, 2f, randomCircle.y);
+
+                // Send raycast downwards, trying to hit ground
+                if (Physics.Raycast(samplePos, Vector3.down, out RaycastHit hit, 10f, groundLayer))
+                {
+                    Vector3 direction = center.position - hit.point;
+                    direction.y = 0;
+
+                    Quaternion lookRotation = Quaternion.LookRotation(direction.normalized);
+                    Vector3 eulerAngles = lookRotation.eulerAngles;
+                    return (hit.point, eulerAngles);
+                }
+            }
+            
+            // If none of the attempts hit, return fallback
+            return (center.position, Vector3.zero);
+        }
     }
 }

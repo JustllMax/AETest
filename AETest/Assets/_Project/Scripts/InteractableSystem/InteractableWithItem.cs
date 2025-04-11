@@ -16,7 +16,7 @@ namespace AE
         protected Type RequiredItemType;
 
         public bool HasItem => Item != null;
-        public override bool CanBeInteractedWith { get; }
+        public override bool CanBeInteractedWith { get; protected set; } = true;
         
         public virtual void SetUp()
         {
@@ -42,14 +42,18 @@ namespace AE
             OnItemUsed(_item);
         }
 
-        protected virtual void OnItemUsed(TItem item){}
+        protected virtual void OnItemUsed(TItem item)
+        {
+            Item.ResetLayer();
+        }
 
-        protected virtual void OnDetachItem(){}
+        protected virtual void OnDetachItem() { }
         public void DetachItem()
         {
             OnDetachItem();
+            if(_item != null)
+                _item.OnPickedUp -= DetachItem;
             
-            _item.OnPickedUp -= DetachItem;
             _item = null;
         }
         public override void OnInteraction()

@@ -8,6 +8,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1207704514664119093, guid: 4948424e7c148874c949fe24311847a7, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2101594791183045410, guid: 4948424e7c148874c949fe24311847a7, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 2952884213492643995, guid: 4948424e7c148874c949fe24311847a7, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -18,7 +26,11 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 275e4a8d1e164cc4eaaf570c13dbb42d, type: 2}
     - target: {fileID: 6688231770012907265, guid: 4948424e7c148874c949fe24311847a7, type: 3}
       propertyPath: m_Name
-      value: SkullWithEyes_Green
+      value: SkullWithEyes_Purple
+      objectReference: {fileID: 0}
+    - target: {fileID: 6688231770012907265, guid: 4948424e7c148874c949fe24311847a7, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6688231770013223737, guid: 4948424e7c148874c949fe24311847a7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -59,6 +71,10 @@ PrefabInstance:
     - target: {fileID: 6688231770013223737, guid: 4948424e7c148874c949fe24311847a7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7877839046766389888, guid: 4948424e7c148874c949fe24311847a7, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

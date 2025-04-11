@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using AE.Core.Generics;
 using AE.Interfaces;
+using AE.Puzzles.TorchSkullPuzzle;
 using UnityEngine;
 
 namespace AE
@@ -13,15 +15,16 @@ namespace AE
 
         private int holdableLayerMask;
         private int objectDefaultLayer;
-        public event Action OnPickedUp; 
-        public override bool CanBeInteractedWith { get; }
+        public event Action OnPickedUp;
+        public override bool CanBeInteractedWith { get; protected set; } = true;
 
-        public bool CanBePickedUp { get; }
+        public bool CanBePickedUp { get; protected set; } = true;
         protected virtual void Awake()
         {
             objectDefaultLayer = gameObject.layer;
             holdableLayerMask = LayerMask.NameToLayer("Holding");
         }
+        
 
         public override void OnInteraction()
         {
@@ -33,18 +36,26 @@ namespace AE
         {
             
             OnPickedUp?.Invoke();
-            gameObject.layer = holdableLayerMask;
+            SetLayerForChildrenObjects(holdableLayerMask);
             transform.SetParent(pickupTransform);
-            transform.localPosition = heldPosition;
-            transform.eulerAngles = heldRotation;
+            Quaternion heldRotationQuaternion = Quaternion.Euler(heldRotation);
+            transform.SetLocalPositionAndRotation(heldPosition, heldRotationQuaternion);
         }
 
         public void Drop(Vector3 dropPosition, Vector3 dropRotation)
         {
-            gameObject.layer = objectDefaultLayer;
+            SetLayerForChildrenObjects(objectDefaultLayer);
             transform.SetParent(null);
             transform.localPosition = dropPosition;
             transform.eulerAngles = dropRotation;
+            // PlaySound at source
+        }
+        public void ResetLayer() => SetLayerForChildrenObjects(objectDefaultLayer);
+
+        private void SetLayerForChildrenObjects(int layer)
+        {
+            foreach (Transform t in gameObject.GetComponentsInChildren<Transform>(true))
+                t.gameObject.layer = layer;
         }
     }
 }
