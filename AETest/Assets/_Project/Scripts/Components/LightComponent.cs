@@ -119,7 +119,6 @@ namespace AE
          
         private void PulseLight()
         {
-            StopPulse();
             LoopPulse(_cts.Token).Forget();
         }
 
@@ -137,7 +136,9 @@ namespace AE
             }
             catch (OperationCanceledException)
             {
-                Debug.Log("LoopPulse cancelled");
+                Debug.LogWarning($"LoopPulse cancelled");
+                _cts.Dispose();
+                _cts = new CancellationTokenSource();
             }
         }
 

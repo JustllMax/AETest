@@ -12,7 +12,7 @@ namespace Terra.Player
 {
     
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerMovement : InGameMonoBehaviour, IAttachListeners, IWithSetUp
+    public class PlayerMovement : InGameMonoBehaviour, IAttachListeners
     {
         [Header("Movement Settings")]
         [SerializeField] private float walkSpeed = 6f;
@@ -32,7 +32,6 @@ namespace Terra.Player
         [SerializeField] private Vector2 mouseInput;
         
         private CharacterController characterController;
-        private InputSystem.PlayerActions inputActions;
         public bool CanPlayerMove { 
             get => _canPlayerMove;
             set => _canPlayerMove = value;
@@ -41,18 +40,21 @@ namespace Terra.Player
             get => _canPlayerRotate;
             set => _canPlayerRotate = value;
         }
-        
-        public void SetUp()
+
+        private void Awake()
         {
             characterController = GetComponent<CharacterController>();
-            
-            if(InputManager.Instance) inputActions = InputManager.Instance.PlayerControls;
-            else Debug.LogError("Input Manager doesn't exist.");
         }
+
         public void AttachListeners()
         {
-            inputActions.Move.performed += OnMovementInput;
-            inputActions.Move.canceled += OnMovementInput;
+            if (InputManager.Instance)
+            {
+                InputManager.Instance.PlayerControls.Move.performed += OnMovementInput;
+                InputManager.Instance.PlayerControls.Move.canceled += OnMovementInput;
+            }
+            else Debug.LogError("Input Manager doesn't exist.");
+            
         }
 
 
@@ -72,7 +74,8 @@ namespace Terra.Player
 
         private void RotateCharacter()
         {
-            mouseInput = inputActions.Look.ReadValue<Vector2>();
+            if(InputManager.Instance)
+                mouseInput = InputManager.Instance.PlayerControls.Look.ReadValue<Vector2>();
 
             // Rotate player transform on horizontal axis
             transform.Rotate(new Vector3(0, mouseInput.x * _cameraSensitivity, 0));
@@ -120,10 +123,10 @@ namespace Terra.Player
 
         public void DetachListeners()
         {
-            if (inputActions.Move != null)
+            if (InputManager.Instance)
             {
-                inputActions.Move.performed -= OnMovementInput;
-                inputActions.Move.canceled -= OnMovementInput;
+                InputManager.Instance.PlayerControls.Move.performed -= OnMovementInput;
+                InputManager.Instance.PlayerControls.Move.canceled -= OnMovementInput;
             }
         }
         

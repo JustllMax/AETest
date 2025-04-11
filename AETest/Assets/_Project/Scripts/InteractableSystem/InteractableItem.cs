@@ -19,12 +19,13 @@ namespace AE
         public override bool CanBeInteractedWith { get; protected set; } = true;
 
         public bool CanBePickedUp { get; protected set; } = true;
-        protected virtual void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             objectDefaultLayer = gameObject.layer;
             holdableLayerMask = LayerMask.NameToLayer("Holding");
         }
-        
+
 
         public override void OnInteraction()
         {
@@ -34,7 +35,7 @@ namespace AE
 
         public void Pickup(Transform pickupTransform)
         {
-            
+            HideOutline();   
             OnPickedUp?.Invoke();
             SetLayerForChildrenObjects(holdableLayerMask);
             transform.SetParent(pickupTransform);

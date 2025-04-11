@@ -22,11 +22,13 @@ namespace AE.Core.Generics
         {
             if (IsInitialized) return;
 
-            if (this is IWithSetUp setup)
-                setup.SetUp();
-
             if (this is IAttachListeners attachListeners)
                 attachListeners.AttachListeners();
+            
+            if (this is IWithSetUp setup)
+                setup.SetUp();
+            if(this is IHasSetBaseState setBase)
+                setBase.UseCaller();
 
             IsInitialized = true;
         }

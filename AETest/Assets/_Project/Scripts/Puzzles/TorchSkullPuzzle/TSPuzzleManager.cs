@@ -9,15 +9,16 @@ using UnityEngine;
 
 namespace AE.Puzzles.TorchSkullPuzzle
 {
-    public class TSPuzzleManager : MonoBehaviourSingleton<TSPuzzleManager>, IWithSetUp, IAttachListeners
+    public class TSPuzzleManager : MonoBehaviourSingleton<TSPuzzleManager>, IAttachListeners
     {
         
         [Foldout("Debug"), ReadOnly] [SerializeField]
         private List<bool> correctSkullTypes = new();
 
         public event Action OnPuzzleCompleted;
-        public void SetUp()
+        protected override void Awake()
         {
+            base.Awake();
             int skullTypesAmount = Enum.GetValues(typeof(InteractableSkull.SkullType)).Length;
             
             for (int i = 0; i <skullTypesAmount;  i++)
@@ -41,11 +42,6 @@ namespace AE.Puzzles.TorchSkullPuzzle
             }
             
             OnPuzzleCompleted?.Invoke();
-        }
-        
-        public void TearDown()
-        {
-            //Noop
         }
         
         public void DetachListeners()

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
 {
-    public class InteractableTorch : InteractableWithItem<InteractableSkull>, IAttachListeners
+    public class InteractableTorch : InteractableWithItem<InteractableSkull>, IAttachListeners, IHasSetBaseState
     {
         protected override bool RequiresSpecialItemType { get; } = true;
         [SerializeField] LightComponent _lightComponent;
@@ -30,7 +30,7 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
         private Tween _attachSkullTween;
         private CancellationTokenSource cts = new CancellationTokenSource();
         
-        public void AttachListeners()
+        public virtual void AttachListeners()
         {
             TSPuzzleManager.Instance.OnPuzzleCompleted += OnPuzzleComplete;
         }
@@ -79,10 +79,8 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
                 _attachSkullTween = null;
                 return;
             }
-            _lightComponent.SetUseColorTemperature(false);
-            _lightComponent.SetCurrentColor(Item.StartPulseColor);
-            _lightComponent.PulseData.pulseColor = Item.EndPulseColor;
-            _lightComponent.ChangeLightMode(LightMode.Pulsating, true);
+
+            SetColorPulse();
         }
         
         
@@ -101,10 +99,34 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
             gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 
         }
-        public void DetachListeners()
+        public virtual void DetachListeners()
         {
             if(TSPuzzleManager.Instance)
                 TSPuzzleManager.Instance.OnPuzzleCompleted += OnPuzzleComplete;
+        }
+
+        private void SetColorPulse()
+        {
+            _lightComponent.SetUseColorTemperature(false);
+            _lightComponent.SetCurrentColor(Item.StartPulseColor);
+            _lightComponent.PulseData.pulseColor = Item.EndPulseColor;
+            _lightComponent.ChangeLightMode(LightMode.Pulsating, true);
+        }
+
+        public override void SetBaseItem(InteractableSkull item)
+        {
+            base.SetBaseItem(item);
+            Item.ResetLayer();
+            if(IsCorrectSkullAttached()) OnSkullTypeChanged?.Invoke(requiredSkullType, true);
+            SetColorPulse();
+        }
+
+        public void UseCaller()
+        {
+            if (gameObject.TryGetComponent(out TorchCaller torchCaller))
+            {
+                torchCaller.SetBase();
+            }
         }
     }
 }

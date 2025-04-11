@@ -62,6 +62,12 @@ namespace AE
             else DefaultInteraction();
         }
 
+        public virtual void SetBaseItem(TItem item)
+        {
+            _item = item;
+            _item.OnPickedUp += DetachItem;
+        }
+
         protected virtual void InteractionWithItemAttached()
         {
             TextManager.Instance.ShowText(attachedItemInteractionText);

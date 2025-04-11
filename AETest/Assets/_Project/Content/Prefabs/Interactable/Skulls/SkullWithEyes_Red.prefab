@@ -8,6 +8,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1282529735663451211, guid: a0bd56dfc83a7534781980a9d8c8cc3b, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2027895778188334172, guid: a0bd56dfc83a7534781980a9d8c8cc3b, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 5780220553138824272, guid: a0bd56dfc83a7534781980a9d8c8cc3b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -50,7 +58,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5780220553139279976, guid: a0bd56dfc83a7534781980a9d8c8cc3b, type: 3}
       propertyPath: m_Name
-      value: SkullWithEyes_Green 1
+      value: SkullWithEyes_Red
+      objectReference: {fileID: 0}
+    - target: {fileID: 5780220553139279976, guid: a0bd56dfc83a7534781980a9d8c8cc3b, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7040705614198654441, guid: a0bd56dfc83a7534781980a9d8c8cc3b, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
