@@ -3,9 +3,28 @@ using AE.Interfaces;
 using AE.Managers;
 using UnityEngine;
 
-namespace AE
+namespace AE.InteractableSystem
 {
-    public abstract class InteractableWithItem<TItem> : InteractableBase, IWithSetUp
+    /// <summary>
+    /// Represents base class for interactable objects, that items can also be used on.
+    /// </summary>
+    public abstract class InteractableWithItemBase : InteractableBase
+    {
+        /// <summary>
+        /// Checks, whether the item can be used on the object
+        /// </summary>
+        public abstract bool CanUseItem<TInteractableItem>(TInteractableItem item) where TInteractableItem : InteractableItem;
+        /// <summary>
+        /// Use item on the object
+        /// </summary>
+        public abstract bool UseItem<TInteractableItem>(TInteractableItem item) where TInteractableItem : InteractableItem;
+    }
+    
+    /// <summary>
+    /// Class for interactable objects to inherit from.
+    /// </summary>
+    /// <typeparam name="TItem">Item that can be used on the object</typeparam>
+    public abstract class InteractableWithItem<TItem> : InteractableWithItemBase, IWithSetUp
         where TItem : InteractableItem
     {
         TItem _item;
@@ -23,31 +42,71 @@ namespace AE
             RequiredItemType = typeof(TItem);
         }
 
-
-        public void UseItem(TItem item)
+        public override bool CanUseItem<TInteractableItem>(TInteractableItem item)
         {
-            if (item == null) return;
+            if(item == null) return false;
+            return InternalCanUseItem(item as TItem);
+        }
+
+        /// <summary>
+        /// see <see cref="CanUseItem{TInteractableItem}"/>, only it checks for the actual required type
+        /// </summary>
+        private bool InternalCanUseItem(TItem item)
+        {
+            if(RequiresSpecialItemType)
+                return item.GetType() == RequiredItemType;
+
+            return true;
+        } 
+
+        /// <summary>
+        /// see <see cref="UseItem{TInteractableItem}"/>, only it uses item of the correct type
+        /// </summary>
+        public override bool UseItem<TInteractableItem>(TInteractableItem item)
+        {
+            return InternalUseItem(item as TItem);
+        }
+
+        
+        /// <summary>
+        /// Handles logic of using item on the object
+        /// </summary>
+        private bool InternalUseItem(TItem item)
+        {
+            if (item == null) return false;
+            // Check is there already an item
+            if (HasItem)
+            {
+                InteractionWithItemAttached();
+                return false;
+            }
             
             if (RequiresSpecialItemType)
             {
                 if (item.GetType() != RequiredItemType)
                 {
-                    IncorrectInteraction();
-                    return;
+                    DisplayIncorrectInteraction();
+                    return false;
                 }
             } 
             
             _item = item;
             _item.OnPickedUp += DetachItem;
             OnItemUsed(_item);
+            
+            return true;
         }
 
+        /// <summary>
+        /// Additional logic, after the item has already been used on the object and it's cached
+        /// </summary>
         protected virtual void OnItemUsed(TItem item)
         {
-            Item.ResetLayer();
         }
 
-        protected virtual void OnDetachItem() { }
+        /// <summary>
+        /// Called when item is being detached from the object
+        /// </summary>
         public void DetachItem()
         {
             OnDetachItem();
@@ -56,18 +115,33 @@ namespace AE
             
             _item = null;
         }
-        public override void OnInteraction()
+        
+        /// <summary>
+        /// Additional logic before item has been cleared out
+        /// </summary>
+        protected virtual void OnDetachItem() { }
+
+        protected override void OnInteraction()
         {
             if (HasItem) InteractionWithItemAttached();
-            else DefaultInteraction();
+            else DisplayDefaultInteraction();
         }
 
-        public virtual void SetBaseItem(TItem item)
+        /// <summary>
+        /// Method used by the set state base caller.
+        /// Attaches item to the object, skipping the UseItem call.
+        /// </summary>
+        public void SetBaseItem(TItem item)
         {
             _item = item;
             _item.OnPickedUp += DetachItem;
+            OnSetBaseItem();
         }
 
+        /// <summary>
+        /// Additional logic when setting base state, called when item has been cached
+        /// </summary>
+        protected virtual void OnSetBaseItem() { }
         protected virtual void InteractionWithItemAttached()
         {
             TextManager.Instance?.ShowText(attachedItemInteractionText);

@@ -1,3 +1,4 @@
+using AE.InteractableSystem;
 using AE.Interfaces;
 using AE.Player;
 using UnityEngine;

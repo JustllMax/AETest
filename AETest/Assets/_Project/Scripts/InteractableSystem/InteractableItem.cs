@@ -1,12 +1,13 @@
 using System;
-using System.Collections.Generic;
-using AE.Core.Generics;
 using AE.Interfaces;
-using AE.Puzzles.TorchSkullPuzzle;
 using UnityEngine;
 
-namespace AE
+namespace AE.InteractableSystem
 {
+    
+    /// <summary>
+    /// Represents an item, that can be picked up and used on interactable objects
+    /// </summary>
     public class InteractableItem : InteractableBase, IPickupAble
     {
         [Header("Pickup Settings")] 
@@ -27,10 +28,9 @@ namespace AE
         }
 
 
-        public override void OnInteraction()
+        protected override void OnInteraction()
         {
-            // Used when cannot be picked up
-            DefaultInteraction();
+            DisplayDefaultInteraction();
         }
 
         public void Pickup(Transform pickupTransform)
@@ -41,8 +41,10 @@ namespace AE
             transform.SetParent(pickupTransform);
             Quaternion heldRotationQuaternion = Quaternion.Euler(heldRotation);
             transform.SetLocalPositionAndRotation(heldPosition, heldRotationQuaternion);
-        }
 
+            OnPickupText();
+        }
+        
         public void Drop(Vector3 dropPosition, Vector3 dropRotation)
         {
             SetLayerForChildrenObjects(objectDefaultLayer);
@@ -53,6 +55,7 @@ namespace AE
         }
         public void ResetLayer() => SetLayerForChildrenObjects(objectDefaultLayer);
 
+        private void OnPickupText() => DisplayDefaultInteraction();
         private void SetLayerForChildrenObjects(int layer)
         {
             foreach (Transform t in gameObject.GetComponentsInChildren<Transform>(true))

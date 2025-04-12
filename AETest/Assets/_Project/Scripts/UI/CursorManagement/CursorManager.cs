@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AE.Core.Generics;
 using AE.CursorManagement;
+using AE.InteractableSystem;
 using AE.Interfaces;
 using DG.Tweening;
 using NaughtyAttributes;
@@ -40,12 +41,23 @@ namespace AE.Managers
             cursorAnimationsDictionary.Add((int)CursorType.InteractionCursor, cursorInteraction);
         }
         
+        public void AttachListeners()
+        {
+            PlayerRaycastController.OnPlayerTargetChanged += OnCurrentlyLookedAtObjectChanged;
+        }
+        
+        /// <summary>
+        /// Called when the currently looked at object has changed
+        /// </summary>
         private void OnCurrentlyLookedAtObjectChanged(GameObject newTarget)
         {
             currentTarget = newTarget;
             TryChangingCurrentCursor();
         }
 
+        /// <summary>
+        /// Manages changing of the current cursor animations
+        /// </summary>
         private void TryChangingCurrentCursor()
         {
             if (currentTarget != null)
@@ -60,10 +72,7 @@ namespace AE.Managers
             ChangeCursorAnim(CursorType.DefaultCursor);
         }
         
-        public void AttachListeners()
-        {
-            PlayerRaycastController.OnPlayerTargetChanged += OnCurrentlyLookedAtObjectChanged;
-        }
+
 
         
         //NOTE: Used in tests
@@ -81,7 +90,10 @@ namespace AE.Managers
         }
         */
 
-        public void ChangeCursorAnim(CursorType cursorType)
+        /// <summary>
+        /// Changes current cursor animation
+        /// </summary>
+        private void ChangeCursorAnim(CursorType cursorType)
         {
             if (!cursorAnimationsDictionary.TryGetValue((int)cursorType, out CursorAnimation newAnimation))
             {
@@ -95,12 +107,18 @@ namespace AE.Managers
             
         }
         
-        
+        /// <summary>
+        /// Sets whether the system cursor is visible
+        /// </summary>
         public void SetCursorVisibility(bool isVisible)
         {
             Cursor.visible = isVisible;
         }
+        
 
+        /// <summary>
+        /// Sets whether the cursor is locked in place of confined to game window
+        /// </summary>
         public void SetCursorLockState(bool isLocked)
         {
             if (isLocked) Cursor.lockState = CursorLockMode.Locked;

@@ -5,6 +5,8 @@ using UnityEngine;
 namespace AE.InteractableSystem
 {
     
+    //NOTE: Could be used for anything, for example setting base state for LightComponent
+    // As it is a small project, it is only used for setting base item for the objects
     /// <summary>
     /// Handles using item on interactable object at the start of the game
     /// </summary>

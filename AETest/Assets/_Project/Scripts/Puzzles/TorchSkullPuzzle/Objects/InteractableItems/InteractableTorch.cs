@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using AE.InteractableSystem;
 using AE.Interfaces;
 using AE.Puzzles.TorchSkullPuzzle.Objects.InteractableItems;
 using Cysharp.Threading.Tasks;
@@ -50,14 +51,6 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
                 Debug.Log("Torch outside catch");
             }
         }
-
-        /// <summary>
-        /// Handles logic when object has been detached from outside
-        /// </summary>
-        private void OnItemDetachedOutside()
-        {
-            DetachItem();
-        }
         
         
         private async UniTaskVoid AttachSkull(CancellationToken token)
@@ -79,7 +72,7 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
                 _attachSkullTween = null;
                 return;
             }
-
+            Item.ResetLayer();
             SetColorPulse();
         }
         
@@ -113,9 +106,9 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
             _lightComponent.ChangeLightMode(LightMode.Pulsating, true);
         }
 
-        public override void SetBaseItem(InteractableSkull item)
+        protected override void OnSetBaseItem()
         {
-            base.SetBaseItem(item);
+            base.OnSetBaseItem();
             Item.ResetLayer();
             if(IsCorrectSkullAttached()) OnSkullTypeChanged?.Invoke(requiredSkullType, true);
             SetColorPulse();
