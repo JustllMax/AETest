@@ -70,7 +70,7 @@ namespace AE
 
         protected virtual void InteractionWithItemAttached()
         {
-            TextManager.Instance.ShowText(attachedItemInteractionText);
+            TextManager.Instance?.ShowText(attachedItemInteractionText);
         }
 
         public virtual void TearDown()

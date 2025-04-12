@@ -162,7 +162,7 @@ namespace AE.Player
         /// </summary>
         private void IncorrectInteraction()
         {
-            TextManager.Instance.ShowText(incorrectPickupInteractionText);
+            TextManager.Instance?.ShowText(incorrectPickupInteractionText);
         }
 
 

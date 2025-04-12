@@ -37,17 +37,17 @@ public abstract class InteractableBase : InGameMonoBehaviour, IInteractable
 
     protected void DefaultInteraction()
     {
-        TextManager.Instance.ShowText(itemDescription);
+        TextManager.Instance?.ShowText(itemDescription);
     }
     
     protected void CorrectInteraction()
     {
-        TextManager.Instance.ShowText(correctInteractionText);
+        TextManager.Instance?.ShowText(correctInteractionText);
     }
 
     protected void IncorrectInteraction()
     {
-        TextManager.Instance.ShowText(incorrectInteractionText);
+        TextManager.Instance?.ShowText(incorrectInteractionText);
     }
 
     public void ShowOutline() => outline.enabled = true;

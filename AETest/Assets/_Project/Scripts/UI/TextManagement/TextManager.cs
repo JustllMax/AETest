@@ -14,56 +14,112 @@ namespace AE.Managers
         [SerializeField] private float textSpeed;
         [SerializeField] private float disappearDelay;
 
-        CancellationTokenSource cts = new CancellationTokenSource();
-
+        private CancellationTokenSource _cts = new();
+  
+        private UniTask _currentTask = UniTask.CompletedTask;
         private bool isDuringDisplay = false;
         private string currentText;
-        public void ShowText(string text)
-        {
-              if(isDuringDisplay) ClearText();
-              StartTextDisplay(text, cts.Token).Forget();
-        }
 
-        private async UniTaskVoid StartTextDisplay(string text, CancellationToken token)
+        public void ShowText(string text) => AsyncShowText(text).Forget(ex => 
         {
-            isDuringDisplay = true;
-            textContainer.SetActive(true);
-            currentText = string.Empty;
+            Debug.LogWarning(ex);
+        });
 
+        /// <summary>
+        /// Shows new text after ensuring any currently displaying text is cancelled
+        /// </summary>
+        private async UniTask AsyncShowText(string text)
+        {
+            // Cancel previous typing if in progress
+
+            CancelCurrentOperation();
             try
             {
+                await _currentTask; // Wait for cancellation to complete
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("Previous task cancelled.");
+            }
+
+            // Create new token
+            _cts.Dispose();
+            _cts = new CancellationTokenSource();
+            // Call text display and cache it
+            _currentTask = StartTextDisplay(text, _cts.Token);
+        }
+
+        /// <summary>
+        /// Displays the text character by character.
+        /// </summary>
+        private async UniTask StartTextDisplay(string text, CancellationToken token)
+        {
+            ClearVisuals();
+            try
+            {
+                isDuringDisplay = true;
+                textContainer.SetActive(true);
+                currentText = string.Empty;
+
                 for (int i = 0; i < text.Length; i++)
                 {
+                    // Append next character.
                     currentText += text[i];
-                    
-                    // Play audio maybe
-                    
                     SetText(currentText);
+
+                    // Wait between characters
                     await UniTask.WaitForSeconds(textSpeed, cancellationToken: token);
+                    // Fail-safe
+                    token.ThrowIfCancellationRequested(); 
                 }
 
+                // Wait before disappearing.
                 await UniTask.WaitForSeconds(disappearDelay, cancellationToken: token);
-                ClearText();
+                // Fail-safe
+                token.ThrowIfCancellationRequested(); 
+                
+                ClearVisuals();
             }
             catch (OperationCanceledException)
             {
-                Debug.LogWarning($"{gameObject.name} Text display of text \"{text}\" cancelled");
+                Debug.LogWarning($"{gameObject.name} text display for \"{text}\" was cancelled.");
+            }
+            finally
+            {
+                isDuringDisplay = false;
             }
         }
-            
 
-        public void ClearText()
+        /// <summary>
+        /// Cancels the current text display.
+        /// </summary>
+        private void CancelCurrentOperation()
         {
-            isDuringDisplay = false;
-            cts.Cancel();
+            if (_cts != null && !_cts.IsCancellationRequested)
+            {
+                _cts.Cancel();
+            }
+        }
+
+        /// <summary>
+        /// Clears text and deactivates the container.
+        /// </summary>
+        private void ClearVisuals()
+        {
             SetText(string.Empty);
             textContainer.SetActive(false);
             currentText = string.Empty;
         }
+
+        private void SetText(string text) => textDisplay.SetText(text);
         
-        private void SetText(string text)
+
+        private void OnDestroy()
         {
-            textDisplay.SetText(text);
+            // Cleanup to avoid leftover tasks.
+            _cts?.Cancel();
+            _cts?.Dispose();
+            
         }
 
     }
