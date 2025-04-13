@@ -9,6 +9,9 @@ using UnityEngine;
 
 namespace AE.Puzzles.TorchSkullPuzzle
 {
+    /// <summary>
+    /// Class that manages Torch-Skull puzzle
+    /// </summary>
     public class TSPuzzleManager : MonoBehaviourSingleton<TSPuzzleManager>, IAttachListeners
     {
         

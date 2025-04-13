@@ -23,6 +23,7 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects
         public void AttachListeners()
         {
             InteractableTorch.OnSkullTypeChanged += OnSkullAttached;
+            TSPuzzleManager.Instance.OnPuzzleCompleted += SwapLights;
         }
 
         private void OnSkullAttached(InteractableSkull.SkullType skullType, bool correct)
@@ -48,8 +49,8 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects
 
         public void DetachListeners()
         {
+            TSPuzzleManager.Instance.OnPuzzleCompleted += SwapLights;
             InteractableTorch.OnSkullTypeChanged -= OnSkullAttached;
-
         }
         
         public void TearDown()

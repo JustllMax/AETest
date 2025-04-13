@@ -13,6 +13,7 @@ namespace AE.InteractableSystem
         [Header("Pickup Settings")] 
         [SerializeField] private Vector3 heldPosition;
         [SerializeField] private Vector3 heldRotation;
+        [SerializeField] private Vector3 heldScale = Vector3.one;
 
         private int holdableLayerMask;
         private int objectDefaultLayer;
@@ -38,10 +39,12 @@ namespace AE.InteractableSystem
             HideOutline();   
             OnPickedUp?.Invoke();
             SetLayerForChildrenObjects(holdableLayerMask);
+            
             transform.SetParent(pickupTransform);
+            transform.localScale = heldScale;
             Quaternion heldRotationQuaternion = Quaternion.Euler(heldRotation);
             transform.SetLocalPositionAndRotation(heldPosition, heldRotationQuaternion);
-
+            
             OnPickupText();
         }
         

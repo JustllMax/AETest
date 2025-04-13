@@ -217,9 +217,9 @@ namespace AE
         }
         private void OnDestroy()
         {
-            StopPulse();
-            colorChangeTween?.Kill();
-            _cts.Dispose();
+            DOTween.Kill(this);
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
     }
     

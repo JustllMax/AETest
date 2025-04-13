@@ -1,6 +1,7 @@
 using System;
 using AE.Interfaces;
 using AE.Managers;
+using NaughtyAttributes;
 using UnityEngine;
 
 namespace AE.InteractableSystem
@@ -10,6 +11,9 @@ namespace AE.InteractableSystem
     /// </summary>
     public abstract class InteractableWithItemBase : InteractableBase
     {
+        [Foldout("General")][SerializeField] protected string incorrectInteractionText;
+        [Foldout("General")][SerializeField] protected string correctInteractionText;
+        
         /// <summary>
         /// Checks, whether the item can be used on the object
         /// </summary>
@@ -18,6 +22,18 @@ namespace AE.InteractableSystem
         /// Use item on the object
         /// </summary>
         public abstract bool UseItem<TInteractableItem>(TInteractableItem item) where TInteractableItem : InteractableItem;
+        
+        protected void DisplayCorrectInteraction()
+        {
+            TextManager.Instance?.ShowText(correctInteractionText);
+        }
+
+        protected void DisplayIncorrectInteraction()
+        {
+            TextManager.Instance?.ShowText(incorrectInteractionText);
+        }
+        
+
     }
     
     /// <summary>

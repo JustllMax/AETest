@@ -1,6 +1,7 @@
 using AE.Core.Generics;
 using AE.Interfaces;
 using AE.Managers;
+using NaughtyAttributes;
 using UnityEngine;
 
 namespace AE.InteractableSystem
@@ -14,16 +15,19 @@ namespace AE.InteractableSystem
     {
         public abstract bool CanBeInteractedWith { get; protected set; }
 
-        [SerializeField] protected string itemDescription;
-        [SerializeField] protected string incorrectInteractionText;
-        [SerializeField] protected string correctInteractionText;
-        [SerializeField] protected Outline outline;
-        [SerializeField] protected Color outlineColor = Color.yellow;
+        [Foldout("Outline Settings")][SerializeField] private Outline outline;
+        [Foldout("Outline Settings")][SerializeField] private Color outlineColor = Color.yellow;
+        
+        [Foldout("General")][SerializeField] protected string itemDescription;
+
+        private Color outlineColorVisible;
+        private Color outlineColorInvisible;
 
         protected virtual void Awake()
         {
             if (outline == null) outline = GetComponent<Outline>();
-            outline.OutlineColor = outlineColor;
+            outlineColorVisible = outlineColor;
+            outlineColorInvisible = new Color(outlineColor.r, outlineColor.g, outlineColor.b, 0f);
             outline.OutlineMode = Outline.Mode.OutlineVisible;
             HideOutline();
         }
@@ -43,19 +47,9 @@ namespace AE.InteractableSystem
         {
             TextManager.Instance?.ShowText(itemDescription);
         }
-
-        protected void DisplayCorrectInteraction()
-        {
-            TextManager.Instance?.ShowText(correctInteractionText);
-        }
-
-        protected void DisplayIncorrectInteraction()
-        {
-            TextManager.Instance?.ShowText(incorrectInteractionText);
-        }
-
-        public void ShowOutline() => outline.enabled = true;
-        public void HideOutline() => outline.enabled = false;
+        
+        public void ShowOutline() => outline.OutlineColor = outlineColorVisible;
+        public void HideOutline() => outline.OutlineColor = outlineColorInvisible;
 
     }
 }

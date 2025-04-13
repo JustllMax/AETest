@@ -22,6 +22,8 @@ namespace AE.Managers
         /// </summary>
         public void ShowText(string text)
         {
+            if(string.IsNullOrEmpty(text)) return;
+            
             // Cancel any ongoing operation first
             if (_cts != null)
             {
@@ -90,14 +92,14 @@ namespace AE.Managers
 
         private void SetText(string text) => textDisplay.SetText(text);
 
-        private void OnDestroy()
+        protected override void CleanUp()
         {
-            // Cleanup to avoid memory leaks
+            base.CleanUp();
+
             if (_cts != null)
             {
                 _cts.Cancel();
                 _cts.Dispose();
-                _cts = null;
             }
         }
     }

@@ -41,7 +41,10 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
         {
             base.OnItemUsed(item);
             
+            // Check for skull type
             if(IsCorrectSkullAttached()) OnSkullTypeChanged?.Invoke(requiredSkullType, true);
+            
+            // Start async attach skull animation
             try
             {
                 AttachSkull(cts.Token).Forget();
@@ -55,11 +58,15 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
         
         private async UniTaskVoid AttachSkull(CancellationToken token)
         {
+            // Set base positon
             Item.transform.SetParent(transform);
             Item.transform.eulerAngles = AttachSkullRotation;
             Item.transform.position = AttachSkullStartPosition;
+            
+            // Start animation
             _attachSkullTween = Item.transform.DOMove(AttachSkullEndPosition, attachDuration);
             
+            // Await until animation has been completed
             try
             {
                 await _attachSkullTween.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(token);
@@ -69,10 +76,12 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
                 Debug.Log("Torch inside catch");
 
                 _attachSkullTween?.Kill();
-                _attachSkullTween = null;
                 return;
             }
+            // Reset item layer back to its base layer
             Item.ResetLayer();
+            
+            // Start light pulse
             SetColorPulse();
         }
         
@@ -120,6 +129,15 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
             {
                 torchCaller.SetBase();
             }
+        }
+
+        protected override void CleanUp()
+        {
+            base.CleanUp();
+            cts?.Cancel();
+            cts?.Dispose();
+            _attachSkullTween?.Kill();
+
         }
     }
 }
