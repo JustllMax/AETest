@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using AE.InteractableSystem;
+using AE.Managers;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using NaughtyAttributes;
@@ -12,6 +13,8 @@ namespace AE.Puzzles.SwordCoffinPuzzle
     {
         [Foldout("References")]
         [SerializeField] Animator animator;
+
+        [SerializeField] private AudioClip choirClip;
         
         [Header("Attach Animation Settings")]
         [SerializeField] private float attachDuration = 1f;
@@ -34,7 +37,7 @@ namespace AE.Puzzles.SwordCoffinPuzzle
             // Start async attach skull animation
             try
             {
-                AttachSkull(cts.Token).Forget();
+                AttachSword(cts.Token).Forget();
             }
             catch (OperationCanceledException)
             {
@@ -43,13 +46,17 @@ namespace AE.Puzzles.SwordCoffinPuzzle
         }
         
         
-        private async UniTaskVoid AttachSkull(CancellationToken token)
+        private async UniTaskVoid AttachSword(CancellationToken token)
         {
             // Set base positon
             Item.transform.SetParent(transform);
             Item.transform.eulerAngles = attachStartTransform.eulerAngles;
             Item.transform.position = attachStartTransform.position;
             Item.transform.localScale = attachStartTransform.localScale;
+            
+            AudioManager.Instance?.PlayMusic(choirClip);
+            //Invoke puzzle end event
+            SCPuzzleManager.Instance.NotifyPuzzleCompleted();
             
             // Start animation
             tween = Item.transform.DOMove(attachEndTransform.position, attachDuration);
@@ -59,8 +66,6 @@ namespace AE.Puzzles.SwordCoffinPuzzle
                 await tween.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(token);
                 
                 DisplayCorrectInteraction();
-                
-                SCPuzzleManager.Instance?.NotifyPuzzleCompleted();
                 
                 animator.CrossFade(animHash, 0f);
             }

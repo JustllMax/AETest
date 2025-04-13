@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2305998}
   - component: {fileID: 9523092}
   - component: {fileID: 64574192669606970}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: SD_Prop_Chandelier_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -145,7 +145,8 @@ GameObject:
   - component: {fileID: 6917131220925402855}
   - component: {fileID: 34154374016683743}
   - component: {fileID: 9003317443173209858}
-  m_Layer: 0
+  - component: {fileID: 7016742506527547564}
+  m_Layer: 9
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -161,7 +162,7 @@ Transform:
   m_GameObject: {fileID: 6496648843150571445}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.0049886703, y: 1.29, z: 0.004989624}
+  m_LocalPosition: {x: 0.0049886703, y: 0.14, z: 0.004989624}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -177,14 +178,14 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 2
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1
-  m_Range: 10
+  m_Color: {r: 0.9150943, g: 0.5682975, b: 0, a: 1}
+  m_Intensity: 16
+  m_Range: 50
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 0
+    m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -221,8 +222,8 @@ Light:
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 2137
-  m_UseColorTemperature: 1
+  m_ColorTemperature: 1900
+  m_UseColorTemperature: 0
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
@@ -267,16 +268,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3b6193ebd75f314eb04bcbd0da60660, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lightMode: 0
-  pulseColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  pulseTemperature: 0
-  pulseFrequencyRange: {x: 5, y: 10}
-  pulseDuration: 1
-  pulsatingIntensityModifier: 1
-  pulsatingRangeModifier: 1
-  minFrequency: 0
+  lightMode: 1
+  pulseData:
+    pulseColor: {r: 1, g: 0.6223176, b: 0, a: 1}
+    pulseTemperature: 2137
+    pulseFrequencyRange: {x: 5, y: 10}
+    pulseDuration: 1
+    pulsatingIntensityModifier: 1.1
+    pulsatingRangeModifier: 1.1
   _light: {fileID: 0}
   baseIntensity: 0
   baseRange: 0
   baseTemperature: 0
   baseColor: {r: 0, g: 0, b: 0, a: 0}
+  currentColor: {r: 0, g: 0, b: 0, a: 0}
+--- !u!114 &7016742506527547564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6496648843150571445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef0b369e4514efd48910582815062baa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _lightComponent: {fileID: 9003317443173209858}
+  _startColor: {r: 0.5943396, g: 0.014017441, b: 0.014017441, a: 1}
+  _endPulseColor: {r: 1, g: 0, b: 0, a: 1}

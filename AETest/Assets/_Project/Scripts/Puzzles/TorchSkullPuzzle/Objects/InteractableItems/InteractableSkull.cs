@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using AE.InteractableSystem;
 using AE.Interfaces;
 using AE.Player;
+using AE.Puzzles.SwordCoffinPuzzle;
 using UnityEngine;
 
 namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableItems
@@ -21,6 +23,10 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableItems
         [Header("On skull wear")]
         [SerializeField] Color startPulseColor;
         [SerializeField] Color endPulseColor;
+        
+        [Header("On Coffin Complete")]
+        [SerializeField] Material redMaterial;
+        [SerializeField] private List<MeshRenderer> EyesMeshes = new();
         public SkullType Type => skullType;
         
         public Color StartPulseColor => startPulseColor;
@@ -30,6 +36,7 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableItems
         public void AttachListeners()
         {
             TSPuzzleManager.Instance.OnPuzzleCompleted += OnPuzzleComplete;
+            SCPuzzleManager.Instance.OnPuzzleCompleted += OnCoffinPuzzleComplete;
         }
         
         private void OnPuzzleComplete()
@@ -38,10 +45,21 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableItems
             gameObject.layer = Utils.IgnoreRaycastMask;
         }
         
+        private void OnCoffinPuzzleComplete()
+        {
+            for (int i = 0; i < EyesMeshes.Count; i++)
+            {
+                EyesMeshes[i].material = redMaterial;
+            }
+        }
+        
         public void DetachListeners()
         {
             if(TSPuzzleManager.Instance)
-                TSPuzzleManager.Instance.OnPuzzleCompleted += OnPuzzleComplete;
+                TSPuzzleManager.Instance.OnPuzzleCompleted -= OnPuzzleComplete;
+            if(SCPuzzleManager.Instance)
+                SCPuzzleManager.Instance.OnPuzzleCompleted -= OnCoffinPuzzleComplete;
+
         }
         
     }

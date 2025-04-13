@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using AE.InteractableSystem;
+using AE.Managers;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -10,6 +11,8 @@ namespace AE.Puzzles.SwordCoffinPuzzle
 {
     public class InteractableCoffinTop : InteractableBase
     {
+        [SerializeField] AudioSource source;
+        [SerializeField] AudioClip clip;
         [SerializeField] private GameObject coffinSkeleton;
         [SerializeField] List<Transform> waypoints = new List<Transform>();
         [SerializeField] float moveSpeed = 0.5f;
@@ -24,6 +27,9 @@ namespace AE.Puzzles.SwordCoffinPuzzle
         {
             gameObject.layer = LayerMask.NameToLayer("Environment");
             
+            if(clip)
+                AudioManager.Instance?.PlaySFXAtSource(clip, source);
+    
             Sequence sequence = DOTween.Sequence();
             
             for (int i = 0; i < waypoints.Count; i++)

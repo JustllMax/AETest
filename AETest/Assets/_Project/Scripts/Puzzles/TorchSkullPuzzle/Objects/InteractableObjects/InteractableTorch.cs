@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using AE.InteractableSystem;
 using AE.Interfaces;
+using AE.Puzzles.SwordCoffinPuzzle;
 using AE.Puzzles.TorchSkullPuzzle.Objects.InteractableItems;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -15,6 +16,7 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
      
         [Foldout("References")][SerializeField] LightComponent _lightComponent;
         
+
         [Header("Puzzle settings")]
         [SerializeField] private InteractableSkull.SkullType requiredSkullType;
 
@@ -102,12 +104,13 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
         {
             CanBeInteractedWith = false;
             gameObject.layer = Utils.IgnoreRaycastMask;
-
         }
+
+
         public virtual void DetachListeners()
         {
             if(TSPuzzleManager.Instance)
-                TSPuzzleManager.Instance.OnPuzzleCompleted += OnPuzzleComplete;
+                TSPuzzleManager.Instance.OnPuzzleCompleted -= OnPuzzleComplete;
         }
 
         private void SetColorPulse()

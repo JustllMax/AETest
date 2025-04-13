@@ -61,6 +61,7 @@ namespace AE.InteractableSystem
         public override bool CanUseItem<TInteractableItem>(TInteractableItem item)
         {
             if(item == null) return false;
+            if(item as TItem == null) return false;
             return InternalCanUseItem(item as TItem);
         }
 
@@ -119,6 +120,7 @@ namespace AE.InteractableSystem
         protected virtual void OnItemUsed(TItem item)
         {
             item.SetIgnoreRaycastLayer();
+            item.PlayUseSFX();
         }
 
         /// <summary>

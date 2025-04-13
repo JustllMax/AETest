@@ -4,6 +4,7 @@ using AE.Core.Generics;
 using AE.CursorManagement;
 using AE.InteractableSystem;
 using AE.Interfaces;
+using AE.Puzzles.SwordCoffinPuzzle;
 using DG.Tweening;
 using NaughtyAttributes;
 using UnityEngine;
@@ -44,6 +45,12 @@ namespace AE.Managers
         public void AttachListeners()
         {
             PlayerRaycastController.OnPlayerTargetChanged += OnCurrentlyLookedAtObjectChanged;
+            SCPuzzleManager.Instance.OnPuzzleCompleted += OnSCPuzzleCompleted;
+        }
+
+        private void OnSCPuzzleCompleted()
+        {
+            cursorImage.color = new Color(1,1,1,0);
         }
         
         /// <summary>

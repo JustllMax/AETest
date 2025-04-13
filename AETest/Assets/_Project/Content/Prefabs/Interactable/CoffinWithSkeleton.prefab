@@ -328,6 +328,8 @@ MonoBehaviour:
   outline: {fileID: 1681924847338491631}
   outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   itemDescription: 
+  source: {fileID: 0}
+  clip: {fileID: 0}
   coffinSkeleton: {fileID: 5927039037375568743}
   waypoints:
   - {fileID: 8598430620799583594}
@@ -1307,6 +1309,7 @@ MonoBehaviour:
   correctInteractionText: What... What is going on?!
   attachedItemInteractionText: 
   animator: {fileID: 564899228776876718}
+  choirClip: {fileID: 8300000, guid: 625f6a8a35fd1c74e8ae88dc81686935, type: 3}
   attachDuration: 1
   attachStartTransform: {fileID: 6136570113839411116}
   attachEndTransform: {fileID: 3730373391032744782}
