@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace AE.Managers
 {
+    /// <summary>
+    /// Handles managing time scale
+    /// </summary>
     public class TimeManager : MonoBehaviourSingleton<TimeManager>
     {
         private bool isTimePaused = false;

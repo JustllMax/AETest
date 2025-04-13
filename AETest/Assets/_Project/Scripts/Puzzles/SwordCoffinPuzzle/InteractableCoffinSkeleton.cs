@@ -55,8 +55,9 @@ namespace AE.Puzzles.SwordCoffinPuzzle
             Item.transform.localScale = attachStartTransform.localScale;
             
             AudioManager.Instance?.PlayMusic(choirClip);
+            
             //Invoke puzzle end event
-            SCPuzzleManager.Instance.NotifyPuzzleCompleted();
+            SCPuzzleManager.Instance?.NotifyPuzzleCompleted();
             
             // Start animation
             tween = Item.transform.DOMove(attachEndTransform.position, attachDuration);

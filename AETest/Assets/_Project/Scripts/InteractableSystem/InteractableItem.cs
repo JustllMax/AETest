@@ -23,13 +23,7 @@ namespace AE.InteractableSystem
         
         public event Action OnPickedUp;
         public override bool CanBeInteractedWith { get; protected set; } = true;
-
         public bool CanBePickedUp { get; protected set; } = true;
-        protected override void Awake()
-        {
-            base.Awake();
-        }
-
 
         protected override void OnInteraction()
         {

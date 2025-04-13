@@ -71,13 +71,6 @@ namespace AE.Managers
             }
             catch (OperationCanceledException)
             {
-                // Expected during cancellation, no need to log
-                // Don't clear visuals here - let the new task handle it
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Error in text display: {ex.Message}");
-                ClearVisuals();
             }
         }
 
