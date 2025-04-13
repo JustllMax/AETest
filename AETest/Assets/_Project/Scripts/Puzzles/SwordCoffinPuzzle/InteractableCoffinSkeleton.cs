@@ -28,9 +28,8 @@ namespace AE.Puzzles.SwordCoffinPuzzle
         protected override void OnItemUsed(InteractableSword item)
         {
             base.OnItemUsed(item);
-            
-            item.gameObject.layer = LayerMask.NameToLayer("Environment");
-            gameObject.layer = LayerMask.NameToLayer("Environment");
+
+            gameObject.layer = Utils.IgnoreRaycastMask;
             
             // Start async attach skull animation
             try

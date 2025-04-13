@@ -118,6 +118,7 @@ namespace AE.InteractableSystem
         /// </summary>
         protected virtual void OnItemUsed(TItem item)
         {
+            item.SetIgnoreRaycastLayer();
         }
 
         /// <summary>

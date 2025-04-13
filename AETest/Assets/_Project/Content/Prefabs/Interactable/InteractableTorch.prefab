@@ -150,11 +150,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10f321fc4d9e3f5439654b8fd487b39e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  outline: {fileID: 5660455588378499839}
+  outlineColor: {r: 1, g: 0.9202454, b: 0, a: 1}
   itemDescription: Something could be placed on top
   incorrectInteractionText: This doesn't fit
   correctInteractionText: That should do it
-  outline: {fileID: 5660455588378499839}
-  outlineColor: {r: 1, g: 0.9202454, b: 0, a: 1}
   attachedItemInteractionText: There is already something attached
   _lightComponent: {fileID: 8442482116126801823}
   requiredSkullType: 0
@@ -681,7 +681,7 @@ Transform:
   m_GameObject: {fileID: 9184516382812329680}
   serializedVersion: 2
   m_LocalRotation: {x: 0.17364816, y: 0, z: 0, w: 0.9848078}
-  m_LocalPosition: {x: -0.04, y: 0.53, z: 0.65}
+  m_LocalPosition: {x: -0.04, y: 0.532, z: 0.644}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

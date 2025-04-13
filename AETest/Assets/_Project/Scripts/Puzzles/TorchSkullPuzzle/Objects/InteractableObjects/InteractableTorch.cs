@@ -5,14 +5,17 @@ using AE.Interfaces;
 using AE.Puzzles.TorchSkullPuzzle.Objects.InteractableItems;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using NaughtyAttributes;
 using UnityEngine;
 
 namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
 {
     public class InteractableTorch : InteractableWithItem<InteractableSkull>, IAttachListeners, IHasSetBaseState
     {
-        protected override bool RequiresSpecialItemType { get; } = true;
-        [SerializeField] LightComponent _lightComponent;
+     
+        [Foldout("References")][SerializeField] LightComponent _lightComponent;
+        
+        [Header("Puzzle settings")]
         [SerializeField] private InteractableSkull.SkullType requiredSkullType;
 
         [Header("Attach Animation Settings")]
@@ -20,16 +23,16 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
         [SerializeField] private Transform attachSkullStartTransform;
         [SerializeField] private Transform attachSkullEndTransform;
 
-        public Vector3 AttachSkullRotation => attachSkullStartTransform.eulerAngles;
-        public Vector3 AttachSkullStartPosition => attachSkullStartTransform.position;
-        public Vector3 AttachSkullEndPosition => attachSkullEndTransform.position;
-        
-        private bool IsCorrectSkullAttached() => Item.Type == requiredSkullType;
-
-        public static event Action<InteractableSkull.SkullType, bool> OnSkullTypeChanged;
-
         private Tween _attachSkullTween;
         private CancellationTokenSource cts = new CancellationTokenSource();
+        
+        protected override bool RequiresSpecialItemType { get; } = true;
+        private Vector3 AttachSkullRotation => attachSkullStartTransform.eulerAngles;
+        private Vector3 AttachSkullStartPosition => attachSkullStartTransform.position;
+        private Vector3 AttachSkullEndPosition => attachSkullEndTransform.position;
+        
+        private bool IsCorrectSkullAttached => Item.Type == requiredSkullType;
+        public static event Action<InteractableSkull.SkullType, bool> OnSkullTypeChanged;
         
         public virtual void AttachListeners()
         {
@@ -42,7 +45,7 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
             base.OnItemUsed(item);
             
             // Check for skull type
-            if(IsCorrectSkullAttached()) OnSkullTypeChanged?.Invoke(requiredSkullType, true);
+            if(IsCorrectSkullAttached) OnSkullTypeChanged?.Invoke(requiredSkullType, true);
             
             // Start async attach skull animation
             try
@@ -98,7 +101,7 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
         private void OnPuzzleComplete()
         {
             CanBeInteractedWith = false;
-            gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+            gameObject.layer = Utils.IgnoreRaycastMask;
 
         }
         public virtual void DetachListeners()
@@ -119,7 +122,7 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
         {
             base.OnSetBaseItem();
             Item.ResetLayer();
-            if(IsCorrectSkullAttached()) OnSkullTypeChanged?.Invoke(requiredSkullType, true);
+            if(IsCorrectSkullAttached) OnSkullTypeChanged?.Invoke(requiredSkullType, true);
             SetColorPulse();
         }
 

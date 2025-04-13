@@ -2,6 +2,10 @@ using UnityEngine;
 
     public static class Utils
     {
+        public static int InteractableLayerMask = LayerMask.NameToLayer("Interactable");
+        public static int PickupableLayerMask = LayerMask.NameToLayer("Pickupable");
+        public static int IgnoreRaycastMask = LayerMask.NameToLayer("Ignore Raycast");
+        public static int HoldableLayerMask = LayerMask.NameToLayer("Holding");
         /// <summary>
         /// Creates a donut shaped ring, then sends raycast 
         /// </summary>

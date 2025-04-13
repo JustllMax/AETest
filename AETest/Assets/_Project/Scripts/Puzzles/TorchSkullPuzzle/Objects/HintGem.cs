@@ -49,7 +49,9 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects
 
         public void DetachListeners()
         {
-            TSPuzzleManager.Instance.OnPuzzleCompleted += SwapLights;
+            if(TSPuzzleManager.Instance)
+                TSPuzzleManager.Instance.OnPuzzleCompleted -= SwapLights;
+            
             InteractableTorch.OnSkullTypeChanged -= OnSkullAttached;
         }
         

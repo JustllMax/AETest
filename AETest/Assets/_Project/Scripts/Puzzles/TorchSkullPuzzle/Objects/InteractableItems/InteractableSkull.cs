@@ -35,7 +35,7 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableItems
         private void OnPuzzleComplete()
         {
             CanBeInteractedWith = false;
-            gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+            gameObject.layer = Utils.IgnoreRaycastMask;
         }
         
         public void DetachListeners()
