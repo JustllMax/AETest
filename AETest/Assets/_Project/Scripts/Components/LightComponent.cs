@@ -15,7 +15,7 @@ namespace AE
     }
     
     [Serializable]
-    public class PulseData
+    public sealed class PulseData
     {
         [SerializeField] public Color pulseColor = Color.yellow;
         [SerializeField] public float pulseTemperature;
@@ -25,8 +25,11 @@ namespace AE
         [SerializeField, Range(1.0f, 100f)] public float pulsatingRangeModifier = 1.0f;
     }
 
+    /// <summary>
+    /// Handles light settings
+    /// </summary>
     [RequireComponent(typeof(Light))]
-    public class LightComponent : MonoBehaviour
+    public sealed class LightComponent : MonoBehaviour
     {
   
         
