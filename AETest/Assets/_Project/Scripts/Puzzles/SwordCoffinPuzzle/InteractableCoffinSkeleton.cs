@@ -23,10 +23,10 @@ namespace AE.Puzzles.SwordCoffinPuzzle
         protected override bool RequiresSpecialItemType { get; } = true;
 
         int animHash = Animator.StringToHash("Anim_OpenEyes");
-
-        private CancellationTokenSource cts = new CancellationTokenSource();
+        
 
         Tween tween;
+        
 
         protected override void OnItemUsed(InteractableSword item)
         {
@@ -37,7 +37,7 @@ namespace AE.Puzzles.SwordCoffinPuzzle
             // Start async attach skull animation
             try
             {
-                AttachSword(cts.Token).Forget();
+                AttachSword(_OnDestoryCancellationToken).Forget();
             }
             catch (OperationCanceledException)
             {
@@ -64,7 +64,7 @@ namespace AE.Puzzles.SwordCoffinPuzzle
             // Await until animation has been completed
             try
             {
-                await tween.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(token);
+                await tween.ToUniTask(cancellationToken:token);
                 
                 DisplayCorrectInteraction();
                 
@@ -82,10 +82,7 @@ namespace AE.Puzzles.SwordCoffinPuzzle
         protected override void CleanUp()
         {
             base.CleanUp();
-            cts?.Cancel();
-            cts?.Dispose();
             tween?.Kill();
-
         }
     }
 }

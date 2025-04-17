@@ -14,13 +14,12 @@ namespace AE.Puzzles.SwordCoffinPuzzle
         [SerializeField] private float darkDuration = 2f;
         private Sequence sequence;
         
-        CancellationTokenSource cts = new CancellationTokenSource();
         
         public static event Action OnDarkScreenComplete; 
         protected override void OnComplete()
         {
             base.OnComplete();
-            StartAnimation(cts.Token).Forget();
+            StartAnimation(_OnDestoryCancellationToken).Forget();
         }
 
         private async UniTaskVoid StartAnimation(CancellationToken token)
@@ -33,7 +32,7 @@ namespace AE.Puzzles.SwordCoffinPuzzle
 
             try
             {
-                await sequence.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(token);
+                await sequence.ToUniTask(cancellationToken: token);
                 OnDarkScreenComplete?.Invoke();
             }
             catch (OperationCanceledException)
@@ -44,10 +43,6 @@ namespace AE.Puzzles.SwordCoffinPuzzle
         protected override void CleanUp()
         {
             base.CleanUp();
-            
-            cts?.Cancel();
-            cts?.Dispose();
-            
             if(sequence != null)
                 DOTween.Kill(sequence);
         }

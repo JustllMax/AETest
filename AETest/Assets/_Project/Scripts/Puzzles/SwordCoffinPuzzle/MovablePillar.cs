@@ -17,7 +17,6 @@ namespace AE.Puzzles.SwordCoffinPuzzle
         [SerializeField] Vector3 endPosition;
         [SerializeField] float duration;
         
-        CancellationTokenSource cts = new CancellationTokenSource();
 
         public void AttachListeners()
         {
@@ -43,7 +42,7 @@ namespace AE.Puzzles.SwordCoffinPuzzle
 
             try
             {
-                await sequence.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(cts.Token);
+                await sequence.ToUniTask(cancellationToken: _OnDestoryCancellationToken);
                 sword.gameObject.layer = LayerMask.NameToLayer("Pickupable");
 
             }
@@ -65,10 +64,6 @@ namespace AE.Puzzles.SwordCoffinPuzzle
         protected override void CleanUp()
         {
             base.CleanUp();
-
-            cts?.Cancel();
-            cts?.Dispose();
-            
             DOTween.Kill(this);
         }
     }

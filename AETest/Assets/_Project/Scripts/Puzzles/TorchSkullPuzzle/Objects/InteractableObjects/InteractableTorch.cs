@@ -26,7 +26,6 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
         [SerializeField] private Transform attachSkullEndTransform;
 
         private Tween _attachSkullTween;
-        private CancellationTokenSource cts = new CancellationTokenSource();
         
         protected override bool RequiresSpecialItemType { get; } = true;
         private Vector3 AttachSkullRotation => attachSkullStartTransform.eulerAngles;
@@ -52,7 +51,7 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
             // Start async attach skull animation
             try
             {
-                AttachSkull(cts.Token).Forget();
+                AttachSkull(_OnDestoryCancellationToken).Forget();
             }
             catch (OperationCanceledException)
             {
@@ -74,7 +73,7 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
             // Await until animation has been completed
             try
             {
-                await _attachSkullTween.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(token);
+                await _attachSkullTween.ToUniTask(cancellationToken: token);
             }
             catch (OperationCanceledException)
             {
@@ -140,8 +139,6 @@ namespace AE.Puzzles.TorchSkullPuzzle.Objects.InteractableObjects
         protected override void CleanUp()
         {
             base.CleanUp();
-            cts?.Cancel();
-            cts?.Dispose();
             _attachSkullTween?.Kill();
 
         }

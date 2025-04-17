@@ -1,3 +1,4 @@
+using System.Threading;
 using AE.Core.Interfaces;
 using AE.Interfaces;
 using UnityEngine;
@@ -11,6 +12,8 @@ namespace AE.Core.Generics
     public abstract class InGameMonoBehaviour : MonoBehaviour, IInitializable
     {
         public bool IsInitialized { get; private set; }
+        
+        protected CancellationToken _OnDestoryCancellationToken;
 
         private void Start()
         {
@@ -30,6 +33,8 @@ namespace AE.Core.Generics
             if(this is IHasSetBaseState setBase)
                 setBase.UseCaller();
 
+            _OnDestoryCancellationToken = this.destroyCancellationToken;
+            
             IsInitialized = true;
         }
 

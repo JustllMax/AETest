@@ -17,7 +17,7 @@ namespace AE.Puzzles.SwordCoffinPuzzle
         [SerializeField] List<Transform> waypoints = new List<Transform>();
         [SerializeField] float moveSpeed = 0.5f;
         public override bool CanBeInteractedWith { get; protected set; } = true;
-        CancellationTokenSource cts = new CancellationTokenSource();
+
         protected override void OnInteraction()
         {
             StartMoveAnimation().Forget();
@@ -40,7 +40,7 @@ namespace AE.Puzzles.SwordCoffinPuzzle
 
             try
             {
-                await sequence.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(cts.Token);
+                await sequence.ToUniTask(cancellationToken: _OnDestoryCancellationToken);
                 coffinSkeleton.layer = LayerMask.NameToLayer("Interactable");
             }
             catch (OperationCanceledException)
@@ -52,9 +52,6 @@ namespace AE.Puzzles.SwordCoffinPuzzle
         protected override void CleanUp()
         {
             base.CleanUp();
-
-            cts?.Cancel();
-            cts?.Dispose();
             
             DOTween.Kill(this);
         }

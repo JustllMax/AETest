@@ -165,9 +165,7 @@ namespace AE
 
             try
             {
-                await sequence.AsyncWaitForCompletion()
-                    .AsUniTask()
-                    .AttachExternalCancellation(token);
+                await sequence.ToUniTask(cancellationToken:token);
             }
             catch (OperationCanceledException)
             {
@@ -193,10 +191,7 @@ namespace AE
             
             try
             {
-                await sequence
-                    .AsyncWaitForCompletion()
-                    .AsUniTask()
-                    .AttachExternalCancellation(token);
+                await sequence.ToUniTask(cancellationToken: token);
             }
             catch (OperationCanceledException)
             {

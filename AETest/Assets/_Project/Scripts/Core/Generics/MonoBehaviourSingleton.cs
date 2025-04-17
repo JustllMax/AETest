@@ -48,7 +48,7 @@ namespace AE.Core.Generics
             }
             else if (_instance != this as T)
             {
-                DestroyImmediate(gameObject);
+                Destroy(gameObject);
             }
         }
 
