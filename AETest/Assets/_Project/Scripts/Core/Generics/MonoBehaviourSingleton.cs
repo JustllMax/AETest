@@ -1,41 +1,39 @@
-using System;
-using AE.Core.Interfaces;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
-namespace AE.Core.Generics
+namespace AE._Project.Scripts.Core.Generics
 {
     /// <summary>
-    /// Class for MonoBehaviours that should be accessed from other classes
+    ///     Class for MonoBehaviours that should be accessed from other classes
     /// </summary>
-    public abstract class MonoBehaviourSingleton<T> : InGameMonoBehaviour, IInitializable
+    public abstract class MonoBehaviourSingleton<T> : InGameMonoBehaviour
         where T : class
     {
-        
-        private static T _instance = null;
+        private static T _instance;
 
         public static T Instance
         {
             get
             {
-
-                if(_instance != null) return _instance;
-                
-                Type type = typeof(T);
-                Object[] obj = Object.FindObjectsByType(type, FindObjectsSortMode.None);
-                
-                if (obj.Length > 0)
+                if (_instance != null)
                 {
-                    if (obj.Length > 1)
-                    {
-                        Debug.LogWarning($"Found duplicate of singleton {type.Name}!" );
-                        Destroy(obj[1]);
-                    }
+                    return _instance;
+                }
 
-                    return obj[0] as T;
-                } 
-                
-                return null;
+                var type = typeof(T);
+                var obj = FindObjectsByType(type, FindObjectsSortMode.None);
+
+                switch (obj.Length)
+                {
+                    case <= 0:
+                        return null;
+                    case > 1:
+                        Debug.LogWarning($"Found duplicate of singleton {type.Name}!");
+                        Destroy(obj[1]);
+                        break;
+                }
+
+                return obj[0] as T;
+
             }
         }
 
@@ -55,11 +53,11 @@ namespace AE.Core.Generics
         protected override void CleanUp()
         {
             if (_instance == this as T)
+            {
                 _instance = null;
-            
+            }
+
             base.CleanUp();
         }
-        
     }
 }
-

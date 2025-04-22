@@ -1,75 +1,106 @@
 using System;
-using AE.Interfaces;
-using AE.Managers;
+using AE._Project.Scripts.Interfaces;
+using AE._Project.Scripts.Managers;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace AE.InteractableSystem
+namespace AE._Project.Scripts.InteractableSystem
 {
-    
     /// <summary>
-    /// Represents an item, that can be picked up and used on interactable objects
+    ///     Represents an item, that can be picked up and used on interactable objects
     /// </summary>
     public class InteractableItem : InteractableBase, IPickupAble
     {
-        [Foldout("References")] [SerializeField] private AudioSource audioSource;
-        [Foldout("References")] [SerializeField] private AudioClip pickupSound;
-        [Foldout("References")] [SerializeField] private AudioClip dropSound;
-        [Foldout("References")] [SerializeField] private AudioClip useSound;
-        [Header("Pickup Settings")] 
-        [SerializeField] private Vector3 heldPosition;
-        [SerializeField] private Vector3 heldRotation;
-        [SerializeField] private Vector3 heldScale = Vector3.one;
-        
-        public event Action OnPickedUp;
+        [FormerlySerializedAs("audioSource")] [Foldout("References")] [SerializeField]
+        private AudioSource _audioSource;
+
+        [FormerlySerializedAs("pickupSound")] [Foldout("References")] [SerializeField]
+        private AudioClip _pickupSound;
+
+        [FormerlySerializedAs("dropSound")] [Foldout("References")] [SerializeField]
+        private AudioClip _dropSound;
+
+        [FormerlySerializedAs("useSound")] [Foldout("References")] [SerializeField]
+        private AudioClip _useSound;
+
+        [FormerlySerializedAs("heldPosition")] [Header("Pickup Settings")] [SerializeField]
+        private Vector3 _heldPosition;
+
+        [FormerlySerializedAs("heldRotation")] [SerializeField]
+        private Vector3 _heldRotation;
+
+        [FormerlySerializedAs("heldScale")] [SerializeField]
+        private Vector3 _heldScale = Vector3.one;
+
         public override bool CanBeInteractedWith { get; protected set; } = true;
         public bool CanBePickedUp { get; protected set; } = true;
+
+        public void Pickup(Transform pickupTransform)
+        {
+            HideOutline();
+            OnPickedUp?.Invoke();
+            SetLayerForChildrenObjects(Utils.Utils.HoldableLayerMask);
+
+            transform.SetParent(pickupTransform);
+            transform.localScale = _heldScale;
+            var heldRotationQuaternion = Quaternion.Euler(_heldRotation);
+            transform.SetLocalPositionAndRotation(_heldPosition, heldRotationQuaternion);
+
+            if (_pickupSound)
+            {
+                AudioManager.Instance?.PlaySfxAtSource(_pickupSound, _audioSource);
+            }
+
+            OnPickupText();
+        }
+
+        public void Drop(Vector3 dropPosition, Vector3 dropRotation)
+        {
+            SetLayerForChildrenObjects(Utils.Utils.PickupableLayerMask);
+            transform.SetParent(null);
+            transform.localPosition = dropPosition;
+            transform.eulerAngles = dropRotation;
+
+            if (_dropSound)
+            {
+                AudioManager.Instance?.PlaySfxAtSource(_dropSound, _audioSource);
+            }
+        }
+
+        public event Action OnPickedUp;
 
         protected override void OnInteraction()
         {
             DisplayDefaultInteraction();
         }
 
-        public void Pickup(Transform pickupTransform)
+        public void PlayUseSfx()
         {
-            HideOutline();   
-            OnPickedUp?.Invoke();
-            SetLayerForChildrenObjects(Utils.HoldableLayerMask);
-            
-            transform.SetParent(pickupTransform);
-            transform.localScale = heldScale;
-            Quaternion heldRotationQuaternion = Quaternion.Euler(heldRotation);
-            transform.SetLocalPositionAndRotation(heldPosition, heldRotationQuaternion);
-            
-            if(pickupSound)
-                AudioManager.Instance?.PlaySFXAtSource(pickupSound, audioSource);
-
-            OnPickupText();
-        }
-        
-        public void Drop(Vector3 dropPosition, Vector3 dropRotation)
-        {
-            SetLayerForChildrenObjects(Utils.PickupableLayerMask);
-            transform.SetParent(null);
-            transform.localPosition = dropPosition;
-            transform.eulerAngles = dropRotation;
-            
-            if(dropSound)
-                AudioManager.Instance?.PlaySFXAtSource(dropSound, audioSource);
+            if (_useSound)
+            {
+                AudioManager.Instance?.PlaySfxAtSource(_useSound, _audioSource);
+            }
         }
 
-        public void PlayUseSFX()
+        public void ResetLayer()
         {
-            if(useSound)
-                AudioManager.Instance?.PlaySFXAtSource(useSound, audioSource);
+            SetLayerForChildrenObjects(Utils.Utils.PickupableLayerMask);
         }
-        public void ResetLayer() => SetLayerForChildrenObjects(Utils.PickupableLayerMask);
-        public void SetIgnoreRaycastLayer() => SetLayerForChildrenObjects(Utils.IgnoreRaycastMask);
 
-        private void OnPickupText() => DisplayDefaultInteraction();
+        public void SetIgnoreRaycastLayer()
+        {
+            SetLayerForChildrenObjects(Utils.Utils.IgnoreRaycastMask);
+        }
+
+        private void OnPickupText()
+        {
+            DisplayDefaultInteraction();
+        }
+
         private void SetLayerForChildrenObjects(int layer)
         {
-            foreach (Transform t in gameObject.GetComponentsInChildren<Transform>(true))
+            foreach (var t in gameObject.GetComponentsInChildren<Transform>(true))
                 t.gameObject.layer = layer;
         }
     }

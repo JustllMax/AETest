@@ -1,58 +1,89 @@
-using System;
-using System.Collections;
-using AE.Core.Generics;
-using AE.InputManagement;
-using AE.Interfaces;
-using AE.Managers;
-using AE.Player;
-using AE.Puzzles.SwordCoffinPuzzle;
+using AE._Project.Scripts.Core.Generics;
+using AE._Project.Scripts.InputManagement;
+using AE._Project.Scripts.Interfaces;
+using AE._Project.Scripts.Managers;
+using AE._Project.Scripts.Puzzles.SwordCoffinPuzzle;
 using NaughtyAttributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using InputSystem = AE.InputManagement.InputSystem;
+using UnityEngine.Serialization;
 
-namespace Terra.Player
+namespace AE._Project.Scripts.Player
 {
-    
     [RequireComponent(typeof(CharacterController))]
     public class PlayerMovement : InGameMonoBehaviour, IAttachListeners
     {
-        [Header("Movement Settings")]
-        [SerializeField] private float walkSpeed = 6f;
-        [SerializeField] private float gravity = 10f;
+        [FormerlySerializedAs("walkSpeed")] [Header("Movement Settings")] [SerializeField]
+        private float _walkSpeed = 6f;
+
+        [FormerlySerializedAs("gravity")] [SerializeField]
+        private float _gravity = 10f;
+
         [SerializeField] private float _cameraSensitivity = 0.1f;
-        [Header("Camera Settings")]
-        [SerializeField] private Vector2 verticalAngleConstraints = new Vector2(-90f, 90f);
-        
-        [Foldout("References")][SerializeField] private Transform playerCameraRig;
-        [Foldout("References")][SerializeField] private AudioSource walkSource;
-        
-        [Foldout("Debug"), ReadOnly]
-        [SerializeField] private bool _canPlayerRotate = true;        
-        [Foldout("Debug"), ReadOnly]
-        [SerializeField] private bool _canPlayerMove = true;        
-        [Foldout("Debug"), ReadOnly]
-        [SerializeField] private Vector2 movementInput;
-        [Foldout("Debug"), ReadOnly]
-        [SerializeField] private Vector3 moveDirection = Vector3.zero;
-        [Foldout("Debug"), ReadOnly]
-        [SerializeField] private float _cameraAngleX;
-        [Foldout("Debug"), ReadOnly]
-        [SerializeField] private Vector2 mouseInput;
-        
-        private CharacterController characterController;
-        public bool CanPlayerMove { 
+
+        [FormerlySerializedAs("verticalAngleConstraints")] [Header("Camera Settings")] [SerializeField]
+        private Vector2 _verticalAngleConstraints = new(-90f, 90f);
+
+        [FormerlySerializedAs("playerCameraRig")] [Foldout("References")] [SerializeField]
+        private Transform _playerCameraRig;
+
+        [FormerlySerializedAs("walkSource")] [Foldout("References")] [SerializeField]
+        private AudioSource _walkSource;
+
+        [Foldout("Debug")] [ReadOnly] [SerializeField]
+        private bool _canPlayerRotate = true;
+
+        [Foldout("Debug")] [ReadOnly] [SerializeField]
+        private bool _canPlayerMove = true;
+
+        [FormerlySerializedAs("movementInput")] [Foldout("Debug")] [ReadOnly] [SerializeField]
+        private Vector2 _movementInput;
+
+        [FormerlySerializedAs("moveDirection")] [Foldout("Debug")] [ReadOnly] [SerializeField]
+        private Vector3 _moveDirection = Vector3.zero;
+
+        [Foldout("Debug")] [ReadOnly] [SerializeField]
+        private float _cameraAngleX;
+
+        [FormerlySerializedAs("mouseInput")] [Foldout("Debug")] [ReadOnly] [SerializeField]
+        private Vector2 _mouseInput;
+
+        private CharacterController _characterController;
+
+        public bool CanPlayerMove
+        {
             get => _canPlayerMove;
             set => _canPlayerMove = value;
         }
-        public bool CanPlayerRotate { 
+
+        public bool CanPlayerRotate
+        {
             get => _canPlayerRotate;
             set => _canPlayerRotate = value;
         }
 
         private void Awake()
         {
-            characterController = GetComponent<CharacterController>();
+            _characterController = GetComponent<CharacterController>();
+        }
+
+
+        private void Update()
+        {
+            if (!PlayerManager.Instance)
+            {
+                return;
+            }
+
+            if (CanPlayerRotate)
+            {
+                RotateCharacter();
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            HandleMovement();
         }
 
         public void AttachListeners()
@@ -62,50 +93,61 @@ namespace Terra.Player
                 InputManager.Instance.PlayerControls.Move.performed += OnMovementInput;
                 InputManager.Instance.PlayerControls.Move.canceled += OnMovementInput;
             }
-            else Debug.LogError("Input Manager doesn't exist.");
-
-            SCPuzzleManager.Instance.OnPuzzleCompleted += OnCoffinPuzzleCompleted;
-        }
-
-
-        void Update()
-        {
-            if (!PlayerManager.Instance)
+            else
             {
-                return;
-            } 
-            if(CanPlayerRotate) RotateCharacter();
+                Debug.LogError("Input Manager doesn't exist.");
+            }
+
+            ScPuzzleManager.Instance.OnPuzzleCompleted += OnCoffinPuzzleCompleted;
         }
 
-        private void OnCoffinPuzzleCompleted() => _canPlayerMove = false;
-        private void FixedUpdate()
+        public void DetachListeners()
         {
-            HandleMovement();
+            if (InputManager.Instance)
+            {
+                InputManager.Instance.PlayerControls.Move.performed -= OnMovementInput;
+                InputManager.Instance.PlayerControls.Move.canceled -= OnMovementInput;
+            }
+
+            if (ScPuzzleManager.Instance)
+            {
+                ScPuzzleManager.Instance.OnPuzzleCompleted -= OnCoffinPuzzleCompleted;
+            }
+        }
+
+        private void OnCoffinPuzzleCompleted()
+        {
+            _canPlayerMove = false;
         }
 
         /// <summary>
-        /// Handles rotating player
+        ///     Handles rotating player
         /// </summary>
         private void RotateCharacter()
         {
-            if(TimeManager.Instance.IsTimePaused) return;
-            
-            if(InputManager.Instance)
-                mouseInput = InputManager.Instance.PlayerControls.Look.ReadValue<Vector2>();
+            if (TimeManager.Instance.IsTimePaused)
+            {
+                return;
+            }
+
+            if (InputManager.Instance)
+            {
+                _mouseInput = InputManager.Instance.PlayerControls.Look.ReadValue<Vector2>();
+            }
 
             // Rotate player transform on horizontal axis
-            transform.Rotate(new Vector3(0, mouseInput.x * _cameraSensitivity, 0));
+            transform.Rotate(new Vector3(0, _mouseInput.x * _cameraSensitivity, 0));
 
             // Compute vertical angle
-            _cameraAngleX += mouseInput.y * _cameraSensitivity;
-            _cameraAngleX = Mathf.Clamp(_cameraAngleX, verticalAngleConstraints.x, verticalAngleConstraints.y);
+            _cameraAngleX += _mouseInput.y * _cameraSensitivity;
+            _cameraAngleX = Mathf.Clamp(_cameraAngleX, _verticalAngleConstraints.x, _verticalAngleConstraints.y);
 
             // Rotate camera on vertical axisd
-            playerCameraRig.localRotation = Quaternion.Euler(new Vector3(-_cameraAngleX, 0, 0));
+            _playerCameraRig.localRotation = Quaternion.Euler(new Vector3(-_cameraAngleX, 0, 0));
         }
-        
+
         /// <summary>
-        /// Reads current player movement inputs
+        ///     Reads current player movement inputs
         /// </summary>
         /// <param name="context"></param>
         private void OnMovementInput(InputAction.CallbackContext context)
@@ -117,52 +159,52 @@ namespace Terra.Player
             }
 
             // Reads System input (Movement -> Vector2)
-            movementInput = context.ReadValue<Vector2>();
+            _movementInput = context.ReadValue<Vector2>();
         }
-        
+
         /// <summary>
-        /// Handles adding velocity to player
+        ///     Handles adding velocity to player
         /// </summary>
         private void HandleMovement()
         {
             // If player cannot move, change current move direction to 0, but still allow gravity
-            if(!CanPlayerMove)
+            if (!CanPlayerMove)
             {
-                moveDirection = new Vector3(0, moveDirection.y, 0);
+                _moveDirection = new Vector3(0, _moveDirection.y, 0);
             }
             else
             {
                 // Vertical movement
-                Vector3 forward = transform.forward * movementInput.y;
+                var forward = transform.forward * _movementInput.y;
                 // Horizontal movement
-                Vector3 right = transform.right * movementInput.x;
-            
+                var right = transform.right * _movementInput.x;
+
                 // Compute direction
-                moveDirection = (forward + right) * walkSpeed;  
+                _moveDirection = (forward + right) * _walkSpeed;
             }
-            
+
             // Adds gravity
-            if (!characterController.isGrounded) moveDirection.y -= gravity;
-            else moveDirection.y = 0;
-            
+            if (!_characterController.isGrounded)
+            {
+                _moveDirection.y -= _gravity;
+            }
+            else
+            {
+                _moveDirection.y = 0;
+            }
+
             // Character Movement
-            characterController.Move(moveDirection * Time.deltaTime);
+            _characterController.Move(_moveDirection * Time.deltaTime);
             // Play walk sounds
             //NOTE: Player controller is broken, while standing still it changes the 'isGrounded'
-            if(moveDirection.x != 0|| moveDirection.z != 0 && (moveDirection.y >= -15) )
-                AudioManager.Instance.PlaySFXAtSourceOnce(walkSource.clip, walkSource);
-            else walkSource.Stop();
-        }
-
-        public void DetachListeners()
-        {
-            if (InputManager.Instance)
+            if (_moveDirection.x != 0 || (_moveDirection.z != 0 && _moveDirection.y >= -15))
             {
-                InputManager.Instance.PlayerControls.Move.performed -= OnMovementInput;
-                InputManager.Instance.PlayerControls.Move.canceled -= OnMovementInput;
+                AudioManager.Instance.PlaySFXAtSourceOnce(_walkSource.clip, _walkSource);
             }
-            if(SCPuzzleManager.Instance)
-                SCPuzzleManager.Instance.OnPuzzleCompleted -= OnCoffinPuzzleCompleted;
+            else
+            {
+                _walkSource.Stop();
+            }
         }
     }
 }

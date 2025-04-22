@@ -3,36 +3,44 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace AE.Puzzles.SwordCoffinPuzzle
+namespace AE._Project.Scripts.Puzzles.SwordCoffinPuzzle
 {
-    public class SCDarkScreen : OnSCPuzzleComplete
+    public class ScDarkScreen : OnScPuzzleComplete
     {
-        [SerializeField] private Image image;
-        [SerializeField] private float delayDuration = 1.0f;
-        [SerializeField] private float darkDuration = 2f;
-        private Sequence sequence;
-        
-        
-        public static event Action OnDarkScreenComplete; 
+        [FormerlySerializedAs("image")] [SerializeField]
+        private Image _image;
+
+        [FormerlySerializedAs("delayDuration")] [SerializeField]
+        private float _delayDuration = 1.0f;
+
+        [FormerlySerializedAs("darkDuration")] [SerializeField]
+        private float _darkDuration = 2f;
+
+        private Sequence _sequence;
+
+
+        public static event Action OnDarkScreenComplete;
+
         protected override void OnComplete()
         {
             base.OnComplete();
-            StartAnimation(_OnDestoryCancellationToken).Forget();
+            StartAnimation(OnDestoryCancellationToken).Forget();
         }
 
         private async UniTaskVoid StartAnimation(CancellationToken token)
         {
-            sequence = DOTween.Sequence();
-            
-            sequence.AppendInterval(delayDuration);
-            sequence.Append(image.DOFade(1f, darkDuration));
-            sequence.AppendInterval(1f);
+            _sequence = DOTween.Sequence();
+
+            _sequence.AppendInterval(_delayDuration);
+            _sequence.Append(_image.DOFade(1f, _darkDuration));
+            _sequence.AppendInterval(1f);
 
             try
             {
-                await sequence.ToUniTask(cancellationToken: token);
+                await _sequence.ToUniTask(cancellationToken: token);
                 OnDarkScreenComplete?.Invoke();
             }
             catch (OperationCanceledException)
@@ -40,11 +48,14 @@ namespace AE.Puzzles.SwordCoffinPuzzle
                 Debug.LogWarning("Dark Screen animation was cancelled");
             }
         }
+
         protected override void CleanUp()
         {
             base.CleanUp();
-            if(sequence != null)
-                DOTween.Kill(sequence);
+            if (_sequence != null)
+            {
+                DOTween.Kill(_sequence);
+            }
         }
     }
 }

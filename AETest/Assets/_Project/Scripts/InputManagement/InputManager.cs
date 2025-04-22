@@ -1,25 +1,24 @@
-using System;
-using AE.Core.Generics;
+using AE._Project.Scripts.Core.Generics;
+using AE.InputManagement;
 using UnityEngine;
 
-namespace AE.InputManagement
+namespace AE._Project.Scripts.InputManagement
 {
     public class InputManager : MonoBehaviourSingleton<InputManager>
     {
-        private InputSystem _inputSystem;
+        private InputSystem InputSystem { get; set; }
 
-        public InputSystem InputSystem => _inputSystem;
-        public InputSystem.PlayerActions PlayerControls => _inputSystem.Player;
-        public InputSystem.AllTimesActions AllTimeControls => _inputSystem.AllTimes;
-        
+        public InputSystem.PlayerActions PlayerControls => InputSystem.Player;
+        public InputSystem.AllTimesActions AllTimeControls => InputSystem.AllTimes;
+
 
         protected override void Awake()
         {
             base.Awake();
-            _inputSystem = new InputSystem();
+            InputSystem = new InputSystem();
         }
 
-        void Start()
+        private void Start()
         {
             // Activate global controls
             EnableAllTimeControls();
@@ -29,83 +28,93 @@ namespace AE.InputManagement
 
 
         /// <summary>
-        /// Method handles switching enable state of <see cref="AllTimeControls"/>
+        ///     Method handles switching enable state of <see cref="AllTimeControls" />
         /// </summary>
         public void SetAllTimeControlsState(bool value)
         {
-            if (value)EnableAllTimeControls();
-            
-            else DisableAllTimeControls();
+            if (value)
+            {
+                EnableAllTimeControls();
+            }
+
+            else
+            {
+                DisableAllTimeControls();
+            }
         }
 
         /// <summary>
-        /// Method handles switching enable state of <see cref="PlayerControls"/>
+        ///     Method handles switching enable state of <see cref="PlayerControls" />
         /// </summary>
         public void SetPlayerControlsState(bool value)
         {
-            if (value) EnablePlayerControls();
-            
-            else DisablePlayerControls();
+            if (value)
+            {
+                EnablePlayerControls();
+            }
+
+            else
+            {
+                DisablePlayerControls();
+            }
         }
 
 
-
         /// <summary>
-        /// Method enables AllTime controls
+        ///     Method enables AllTime controls
         /// </summary>
         private void EnableAllTimeControls()
         {
-            if (_inputSystem?.AllTimes == null)
+            if (InputSystem?.AllTimes == null)
             {
                 Debug.LogError("InputActions or AllTime is null in " + this);
                 return;
             }
 
-            _inputSystem?.AllTimes.Enable();
+            InputSystem?.AllTimes.Enable();
         }
 
         /// <summary>
-        /// Method enables AllTime controls
+        ///     Method enables AllTime controls
         /// </summary>
         private void DisableAllTimeControls()
         {
-            if (_inputSystem?.AllTimes == null)
+            if (InputSystem?.AllTimes == null)
             {
                 Debug.LogError("InputActions or AllTime is null in " + this);
                 return;
             }
 
-            _inputSystem?.AllTimes.Disable();
+            InputSystem?.AllTimes.Disable();
         }
 
 
         /// <summary>
-        /// Method enables Player controls
+        ///     Method enables Player controls
         /// </summary>
         private void EnablePlayerControls()
         {
-            if (_inputSystem?.Player == null)
+            if (InputSystem?.Player == null)
             {
                 Debug.LogError("InputActions or PlayerControls is null in " + this);
                 return;
             }
 
-            _inputSystem?.Player.Enable();
+            InputSystem?.Player.Enable();
         }
 
         /// <summary>
-        /// Method disables Player controls
+        ///     Method disables Player controls
         /// </summary>
         private void DisablePlayerControls()
         {
-            if (_inputSystem?.Player == null)
+            if (InputSystem?.Player == null)
             {
                 Debug.LogWarning("PlayerControls is null in " + this);
                 return;
             }
 
-            _inputSystem?.Player.Disable();
+            InputSystem?.Player.Disable();
         }
-
     }
 }

@@ -1,29 +1,28 @@
-using AE.Core.Generics;
-using AE.Interfaces;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace AE.InteractableSystem
+namespace AE._Project.Scripts.InteractableSystem
 {
-    
     //NOTE: Could be used for anything, for example setting base state for LightComponent
     // As it is a small project, it is only used for setting base item for the objects
     /// <summary>
-    /// Handles using item on interactable object at the start of the game
+    ///     Handles using item on interactable object at the start of the game
     /// </summary>
     public class SetBaseCaller<TItem> : MonoBehaviour
-    where TItem : InteractableItem
+        where TItem : InteractableItem
     {
-        [SerializeField] private InteractableWithItem<TItem> itemTarget;
-        [SerializeField] private TItem itemToBeUsed;
+        [FormerlySerializedAs("itemTarget")] [SerializeField] private InteractableWithItem<TItem> _itemTarget;
+        [FormerlySerializedAs("itemToBeUsed")] [SerializeField] private TItem _itemToBeUsed;
+
         public void SetBase()
         {
-            if (itemToBeUsed == null || itemTarget == null)
+            if (_itemToBeUsed == null || _itemTarget == null)
             {
                 Debug.LogError($"{this} {gameObject.name} itemTarget or itemToBeUsed is null");
                 return;
             }
-            itemTarget.SetBaseItem(itemToBeUsed);
 
+            _itemTarget.SetBaseItem(_itemToBeUsed);
         }
     }
 }

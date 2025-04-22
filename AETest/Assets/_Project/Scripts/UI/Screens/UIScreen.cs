@@ -1,25 +1,27 @@
-using System;
-using AE.Core.Generics;
-using AE.Interfaces;
+using AE._Project.Scripts.Core.Generics;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace AE.UI
+namespace AE._Project.Scripts.UI.Screens
 {
     public class UIScreen : InGameMonoBehaviour
     {
         [SerializeField] private CanvasGroup _canvasGroup;
-        [SerializeField] private Button exitButton;
-        
-        private bool canPause = false;
 
+        [FormerlySerializedAs("exitButton")] [SerializeField]
+        private Button _exitButton;
+        
         protected virtual void Awake()
         {
-            exitButton.onClick.AddListener(CloseGame);
+            _exitButton.onClick.AddListener(CloseGame);
         }
 
-        private void CloseGame() => Application.Quit();
+        private void CloseGame()
+        {
+            Application.Quit();
+        }
+
         public void Show()
         {
             _canvasGroup.alpha = 1;
@@ -31,8 +33,7 @@ namespace AE.UI
         {
             _canvasGroup.alpha = 0;
             _canvasGroup.interactable = false;
-            _canvasGroup.blocksRaycasts = false; 
+            _canvasGroup.blocksRaycasts = false;
         }
-        
     }
 }

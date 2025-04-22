@@ -1,8 +1,8 @@
-using AE.Core.Generics;
-using AE.Interfaces;
-using UnityEngine;
+using AE._Project.Scripts.Core.Generics;
+using AE._Project.Scripts.Interfaces;
+using AE._Project.Scripts.UI.CursorManagement;
 
-namespace AE.Managers
+namespace AE._Project.Scripts.Managers
 {
     public class GameManager : MonoBehaviourSingleton<GameManager>, IWithSetUp
     {

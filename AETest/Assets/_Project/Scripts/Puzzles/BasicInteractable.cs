@@ -1,11 +1,11 @@
-using AE.InteractableSystem;
-using UnityEngine;
+using AE._Project.Scripts.InteractableSystem;
 
-namespace AE
+namespace AE._Project.Scripts.Puzzles
 {
     public class BasicInteractable : InteractableBase
     {
         public override bool CanBeInteractedWith { get; protected set; } = true;
+
         protected override void OnInteraction()
         {
             DisplayDefaultInteraction();

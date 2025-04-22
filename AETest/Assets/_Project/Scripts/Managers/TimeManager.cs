@@ -1,56 +1,54 @@
 using System;
 using System.Collections.Generic;
-using AE.Core.Generics;
-using AE.Interfaces;
+using AE._Project.Scripts.Core.Generics;
+using AE._Project.Scripts.Extensions;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace AE.Managers
+namespace AE._Project.Scripts.Managers
 {
     /// <summary>
-    /// Handles managing time scale
+    ///     Handles managing time scale
     /// </summary>
     public class TimeManager : MonoBehaviourSingleton<TimeManager>
     {
-                
-        [Foldout("Debug"),ReadOnly] [SerializeField]
-        List<GameObject> pauseBlockers = new List<GameObject>();
+        [FormerlySerializedAs("pauseBlockers")] [Foldout("Debug")] [ReadOnly] [SerializeField]
+        private List<GameObject> _pauseBlockers = new();
         
-        private bool isTimePaused = false;
-        
-        private bool _canPause = true;
-        public bool IsTimePaused => isTimePaused;
-        public bool CanPause => pauseBlockers.Count <= 0;
-        
-
-
         public Action OnTimePaused;
         public Action OnTimeResumed;
-        
+        public bool IsTimePaused { get; private set; }
+
+        public bool CanPause => _pauseBlockers.Count <= 0;
+
         public void AddPauseBlocker(GameObject pauseBlocker)
         {
-            pauseBlockers.AddUnique(pauseBlocker);
+            _pauseBlockers.AddUnique(pauseBlocker);
         }
 
         public void RemovePauseBlocker(GameObject pauseBlocker)
         {
-            pauseBlockers.RemoveElement(pauseBlocker);
+            _pauseBlockers.RemoveElement(pauseBlocker);
         }
-        
+
         public void PauseTime()
         {
-            if(!CanPause) return;
-            isTimePaused = true;
+            if (!CanPause)
+            {
+                return;
+            }
+
+            IsTimePaused = true;
             Time.timeScale = 0;
             OnTimePaused?.Invoke();
         }
 
         public void ResumeTime()
         {
-            isTimePaused = false;
+            IsTimePaused = false;
             Time.timeScale = 1;
             OnTimeResumed?.Invoke();
         }
-        
     }
 }

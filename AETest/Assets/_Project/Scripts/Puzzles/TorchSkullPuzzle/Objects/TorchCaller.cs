@@ -1,14 +1,12 @@
-using AE.InteractableSystem;
-using AE.Puzzles.TorchSkullPuzzle.Objects.InteractableItems;
-using UnityEngine;
+using AE._Project.Scripts.InteractableSystem;
+using AE._Project.Scripts.Puzzles.TorchSkullPuzzle.Objects.InteractableItems;
 
-namespace AE.Puzzles.TorchSkullPuzzle.Objects
+namespace AE._Project.Scripts.Puzzles.TorchSkullPuzzle.Objects
 {
     /// <summary>
-    /// Caller for torch
+    ///     Caller for torch
     /// </summary>
     public class TorchCaller : SetBaseCaller<InteractableSkull>
     {
-
     }
 }

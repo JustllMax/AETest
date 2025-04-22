@@ -1,15 +1,20 @@
-using AE.Interfaces;
-using AE.Managers;
-using AE.Puzzles.SwordCoffinPuzzle;
-using UnityEngine;
+using AE._Project.Scripts.Interfaces;
+using AE._Project.Scripts.Managers;
+using AE._Project.Scripts.Puzzles.SwordCoffinPuzzle;
+using AE._Project.Scripts.UI.CursorManagement;
 
-namespace AE.UI.Screens
+namespace AE._Project.Scripts.UI.Screens
 {
     public class EndScreen : UIScreen, IAttachListeners
     {
         public void AttachListeners()
         {
-            SCDarkScreen.OnDarkScreenComplete += OnAnimEnded;
+            ScDarkScreen.OnDarkScreenComplete += OnAnimEnded;
+        }
+
+        public void DetachListeners()
+        {
+            ScDarkScreen.OnDarkScreenComplete -= OnAnimEnded;
         }
 
         private void OnAnimEnded()
@@ -18,12 +23,6 @@ namespace AE.UI.Screens
             CursorManager.Instance.SetCursorVisibility(true);
             CursorManager.Instance.SetCursorLockState(false);
             AudioManager.Instance.StopAudioLoop();
-        }
-
-        public void DetachListeners()
-        {
-            SCDarkScreen.OnDarkScreenComplete -= OnAnimEnded;
-
         }
     }
 }

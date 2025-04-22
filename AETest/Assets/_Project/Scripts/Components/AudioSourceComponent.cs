@@ -1,19 +1,19 @@
-using System;
-using AE.Core.Generics;
-using AE.Interfaces;
-using AE.Managers;
+using AE._Project.Scripts.Core.Generics;
+using AE._Project.Scripts.Interfaces;
+using AE._Project.Scripts.Managers;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace AE
+namespace AE._Project.Scripts.Components
 {
     [RequireComponent(typeof(AudioSource))]
-    public sealed class AudioSourceComponent : InGameMonoBehaviour,IAttachListeners
+    public sealed class AudioSourceComponent : InGameMonoBehaviour, IAttachListeners
     {
-        [SerializeField]private AudioSource audioSource;
+        [FormerlySerializedAs("audioSource")] [SerializeField] private AudioSource _audioSource;
 
         private void Awake()
         {
-            audioSource = GetComponent<AudioSource>();
+            _audioSource = GetComponent<AudioSource>();
         }
 
         public void AttachListeners()
@@ -23,17 +23,8 @@ namespace AE
                 TimeManager.Instance.OnTimePaused += PauseAudio;
                 TimeManager.Instance.OnTimeResumed += ResumeAudio;
             }
-
-        }
-        private void PauseAudio()
-        {
-            audioSource.Pause();
         }
 
-        private void ResumeAudio()
-        {
-            audioSource.UnPause();
-        }
         public void DetachListeners()
         {
             if (TimeManager.Instance)
@@ -41,7 +32,16 @@ namespace AE
                 TimeManager.Instance.OnTimePaused -= PauseAudio;
                 TimeManager.Instance.OnTimeResumed -= ResumeAudio;
             }
+        }
 
+        private void PauseAudio()
+        {
+            _audioSource.Pause();
+        }
+
+        private void ResumeAudio()
+        {
+            _audioSource.UnPause();
         }
     }
 }

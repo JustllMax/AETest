@@ -1,39 +1,52 @@
 using System;
 using System.Threading;
-using AE.Core.Generics;
-using AE.Extensions;
+using AE._Project.Scripts.Core.Generics;
+using AE._Project.Scripts.Extensions;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
-namespace AE.Managers
+namespace AE._Project.Scripts.Managers
 {
     public class AudioManager : PersistentMonoSingleton<AudioManager>
     {
+        [FormerlySerializedAs("MinDB")] [Header("Config")] [SerializeField]
+        private float _minDB;
 
-        [Serializable]
-        internal struct Sound
-        {
-            public string name;
-            public AudioClip clip;
-        }
+        [FormerlySerializedAs("MaxDB")] [SerializeField]
+        private float _maxDB;
 
-        [Header("Config")] [SerializeField] private float MinDB;
-        [SerializeField] private float MaxDB;
-        [SerializeField] private float delayBetweenClips = 0.5f;
+        [FormerlySerializedAs("delayBetweenClips")] [SerializeField]
+        private float _delayBetweenClips = 0.5f;
 
-        [Header("Audio Clips")]
-        [SerializeField] private Sound[] musicSounds;
-        [SerializeField] private Sound[] sfxSounds;
-        [SerializeField] private Sound[] ambientSounds;
+        [FormerlySerializedAs("musicSounds")] [Header("Audio Clips")] [SerializeField]
+        private Sound[] _musicSounds;
 
-        [Header("References")] [SerializeField]
-        private AudioMixer AudioMixer;
+        [FormerlySerializedAs("sfxSounds")] [SerializeField]
+        private Sound[] _sfxSounds;
 
-        [SerializeField] private AudioSource musicSource, sfxSource, ambientSource;
-        [SerializeField] private AudioLowPassFilter MusicAudioLowPassFilter;
-        [SerializeField] private AudioLowPassFilter AmbientAudioLowPassFilter;
+        [FormerlySerializedAs("ambientSounds")] [SerializeField]
+        private Sound[] _ambientSounds;
 
+        [FormerlySerializedAs("AudioMixer")] [Header("References")] [SerializeField]
+        private AudioMixer _audioMixer;
+
+        [FormerlySerializedAs("musicSource")] [SerializeField]
+        private AudioSource _musicSource;
+
+        [FormerlySerializedAs("sfxSource")] [SerializeField]
+        private AudioSource _sfxSource;
+
+        [FormerlySerializedAs("ambientSource")] [SerializeField]
+        private AudioSource _ambientSource;
+
+        [FormerlySerializedAs("MusicAudioLowPassFilter")] [SerializeField]
+        private AudioLowPassFilter _musicAudioLowPassFilter;
+
+        [FormerlySerializedAs("AmbientAudioLowPassFilter")] [SerializeField]
+        private AudioLowPassFilter _ambientAudioLowPassFilter;
 
 
         private CancellationTokenSource _cts;
@@ -49,16 +62,16 @@ namespace AE.Managers
 
         public void PlayMusic(string clip)
         {
-            Sound s = Array.Find(musicSounds, x => x.name.Equals(clip, StringComparison.OrdinalIgnoreCase));
+            var s = Array.Find(_musicSounds, x => x._name.Equals(clip, StringComparison.OrdinalIgnoreCase));
 
-            if (s.name == default)
+            if (s._name == default)
             {
                 Debug.LogError($"Sound {clip} Not Found");
             }
             else
             {
-                musicSource.clip = s.clip;
-                musicSource.Play();
+                _musicSource.clip = s._clip;
+                _musicSource.Play();
             }
         }
 
@@ -67,69 +80,69 @@ namespace AE.Managers
         {
             StopMusic();
 
-            musicSource.clip = clip;
-            musicSource.Play();
+            _musicSource.clip = clip;
+            _musicSource.Play();
         }
 
         public void StopMusic()
         {
-            musicSource.Stop();
+            _musicSource.Stop();
         }
 
         public void PlayAmbient(string clip)
         {
-            Sound s = Array.Find(ambientSounds, x => x.name.Equals(clip, StringComparison.OrdinalIgnoreCase));
+            var s = Array.Find(_ambientSounds, x => x._name.Equals(clip, StringComparison.OrdinalIgnoreCase));
 
-            if (s.name == default)
+            if (s._name == default)
             {
                 Debug.LogError($"Sound {clip} Not Found");
             }
             else
             {
-                ambientSource.clip = s.clip;
-                ambientSource.Play();
+                _ambientSource.clip = s._clip;
+                _ambientSource.Play();
             }
         }
 
         public void StopAmbient(string clip)
         {
-            ambientSource.Stop();
+            _ambientSource.Stop();
         }
 
-        public void PlaySFX(string clip)
+        public void PlaySfx(string clip)
         {
-            Sound s = Array.Find(sfxSounds, x => x.name.Equals(clip, StringComparison.OrdinalIgnoreCase));
+            var s = Array.Find(_sfxSounds, x => x._name.Equals(clip, StringComparison.OrdinalIgnoreCase));
 
-            if (s.name == default)
+            if (s._name == default)
             {
                 Debug.LogError($"Sound {clip} Not Found");
             }
             else
             {
-                PlaySFX(s.clip);
+                PlaySfx(s._clip);
             }
         }
 
-        public void PlaySFX(AudioClip clip)
+        public void PlaySfx(AudioClip clip)
         {
-            sfxSource.PlayOneShot(clip);
+            _sfxSource.PlayOneShot(clip);
         }
 
 
-        public void PlaySFXAtSource(AudioClip clip, AudioSource source, float pitch = 1f)
+        public void PlaySfxAtSource(AudioClip clip, AudioSource source, float pitch = 1f)
         {
             source.Stop();
-            source.volume = sfxSource.volume;
+            source.volume = _sfxSource.volume;
             source.pitch = pitch;
             source.PlayOneShot(clip);
         }
 
         /// <summary>
-        /// Method tries to play SFX, but if its already playing given clip, it won't repeat
+        ///     Method tries to play SFX, but if its already playing given clip, it won't repeat
         /// </summary>
         public void PlaySFXAtSourceOnce(AudioClip clip, AudioSource source)
         {
-            source.volume = sfxSource.volume;
+            source.volume = _sfxSource.volume;
             if (source.clip != clip)
             {
                 source.clip = clip;
@@ -143,56 +156,57 @@ namespace AE.Managers
 
         public bool IsMusicPlayingClip(string clip)
         {
-            Sound s = Array.Find(musicSounds, x => x.name.Equals(clip, StringComparison.OrdinalIgnoreCase));
-            if (s.name == default)
+            var s = Array.Find(_musicSounds, x => x._name.Equals(clip, StringComparison.OrdinalIgnoreCase));
+            if (s._name == default)
             {
                 Debug.Log("Sound Not Found");
                 return false;
             }
 
-            return musicSource.isPlaying && musicSource.clip == s.clip;
+            return _musicSource.isPlaying && _musicSource.clip == s._clip;
         }
 
 
         /// <summary>
-        /// Sets main audio volume
+        ///     Sets main audio volume
         /// </summary>
         /// <remarks>Value passed down should be in range of 0 to 100, as in percentages</remarks>
         public void SetVolume(float volume)
         {
-            volume = volume.Remap(0, 100, MinDB, MaxDB);
+            volume = volume.Remap(0, 100, _minDB, _maxDB);
 
-            AudioMixer?.SetFloat("Master", volume);
+            _audioMixer?.SetFloat("Master", volume);
         }
 
         public void SetMusicLowPassFilterEnable(bool enable)
         {
-            MusicAudioLowPassFilter.enabled = enable;
-            AmbientAudioLowPassFilter.enabled = enable;
+            _musicAudioLowPassFilter.enabled = enable;
+            _ambientAudioLowPassFilter.enabled = enable;
         }
 
         public void SetMusicPitch(float pitch)
         {
-            musicSource.pitch = pitch;
+            _musicSource.pitch = pitch;
         }
 
 
         private async UniTaskVoid PlayRandomAudioLoop(CancellationToken token)
         {
             // Check if we have enough clips
-            if (musicSounds == null || musicSounds.Length == 0)
+            if (_musicSounds == null || _musicSounds.Length == 0)
             {
                 Debug.LogWarning("No audio clips assigned to RandomAudioPlayer");
                 return;
             }
 
             // If only one clip is available, just play it repeatedly
-            if (musicSounds.Length == 1)
+            if (_musicSounds.Length == 1)
             {
                 while (!token.IsCancellationRequested)
                 {
-                    PlayMusic(musicSounds[0].clip);
-                    await UniTask.WaitForSeconds(musicSource.clip.length + delayBetweenClips, cancellationToken: token);
+                    PlayMusic(_musicSounds[0]._clip);
+                    await UniTask.WaitForSeconds(_musicSource.clip.length + _delayBetweenClips,
+                        cancellationToken: token);
                 }
 
                 return;
@@ -202,16 +216,16 @@ namespace AE.Managers
             while (!token.IsCancellationRequested)
             {
                 // Get a random clip different from the last one
-                AudioClip randomClip = GetDifferentRandomClip();
+                var randomClip = GetDifferentRandomClip();
 
                 // Play the clip
                 PlayMusic(randomClip);
 
                 // Wait for clip to finish plus delay
-                float waitTime = musicSource.clip.length + delayBetweenClips;
+                var waitTime = _musicSource.clip.length + _delayBetweenClips;
                 try
                 {
-                    await UniTask.WaitForSeconds(waitTime, ignoreTimeScale:true, cancellationToken: token);
+                    await UniTask.WaitForSeconds(waitTime, true, cancellationToken: token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -224,15 +238,17 @@ namespace AE.Managers
         private AudioClip GetDifferentRandomClip()
         {
             // Special case: if we have 0 or 1 clip, just return it
-            if (musicSounds.Length <= 1)
-                return musicSounds.Length > 0 ? musicSounds[0].clip : null;
+            if (_musicSounds.Length <= 1)
+            {
+                return _musicSounds.Length > 0 ? _musicSounds[0]._clip : null;
+            }
 
             // Keep picking random clips until we get one different from the last played
             AudioClip newClip;
             do
             {
-                int randomIndex = UnityEngine.Random.Range(0, musicSounds.Length);
-                newClip = musicSounds[randomIndex].clip;
+                var randomIndex = Random.Range(0, _musicSounds.Length);
+                newClip = _musicSounds[randomIndex]._clip;
             } while (newClip == _lastPlayedClip);
 
             // Remember this clip for next time
@@ -242,18 +258,27 @@ namespace AE.Managers
 
         public void StopAudioLoop()
         {
-            if (_cts != null)
+            if (_cts == null)
             {
-                _cts.Cancel();
-                _cts.Dispose();
-                _cts = null;
+                return;
             }
+
+            _cts.Cancel();
+            _cts.Dispose();
+            _cts = null;
         }
 
         protected override void CleanUp()
         {
             base.CleanUp();
             StopAudioLoop();
+        }
+
+        [Serializable]
+        internal struct Sound
+        {
+            [FormerlySerializedAs("name")] public string _name;
+            [FormerlySerializedAs("clip")] public AudioClip _clip;
         }
     }
 }

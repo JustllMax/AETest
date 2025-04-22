@@ -1,28 +1,36 @@
 using System;
-using System.Threading;
-using AE.Core.Generics;
-using AE.Interfaces;
-using AE.Managers;
-using AE.Puzzles.TorchSkullPuzzle;
+using AE._Project.Scripts.Core.Generics;
+using AE._Project.Scripts.Interfaces;
+using AE._Project.Scripts.Managers;
+using AE._Project.Scripts.Puzzles.TorchSkullPuzzle;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace AE.Puzzles.SwordCoffinPuzzle
+namespace AE._Project.Scripts.Puzzles.SwordCoffinPuzzle
 {
-    public class MovablePillar : InGameMonoBehaviour,IAttachListeners
+    public class MovablePillar : InGameMonoBehaviour, IAttachListeners
     {
-        [SerializeField] AudioSource audioSource;
-        [SerializeField] InteractableSword sword;
-        [SerializeField] Vector3 endPosition;
-        [SerializeField] float duration;
-        
+        [FormerlySerializedAs("audioSource")] [SerializeField] private AudioSource _audioSource;
+        [FormerlySerializedAs("sword")] [SerializeField] private InteractableSword _sword;
+        [FormerlySerializedAs("endPosition")] [SerializeField] private Vector3 _endPosition;
+        [FormerlySerializedAs("duration")] [SerializeField] private float _duration;
+
 
         public void AttachListeners()
         {
-            if (TSPuzzleManager.Instance)
+            if (TsPuzzleManager.Instance)
             {
-                TSPuzzleManager.Instance.OnPuzzleCompleted += MovePillar;
+                TsPuzzleManager.Instance.OnPuzzleCompleted += MovePillar;
+            }
+        }
+
+        public void DetachListeners()
+        {
+            if (TsPuzzleManager.Instance)
+            {
+                TsPuzzleManager.Instance.OnPuzzleCompleted -= MovePillar;
             }
         }
 
@@ -34,33 +42,22 @@ namespace AE.Puzzles.SwordCoffinPuzzle
 
         private async UniTaskVoid AsyncStartMove()
         {
-            
-            Sequence sequence = DOTween.Sequence();
-            
-            AudioManager.Instance.PlaySFXAtSourceOnce(audioSource.clip, audioSource);
-            sequence.Append(transform.DOMove(endPosition, duration));
+            var sequence = DOTween.Sequence();
+
+            AudioManager.Instance.PlaySFXAtSourceOnce(_audioSource.clip, _audioSource);
+            sequence.Append(transform.DOMove(_endPosition, _duration));
 
             try
             {
-                await sequence.ToUniTask(cancellationToken: _OnDestoryCancellationToken);
-                sword.gameObject.layer = LayerMask.NameToLayer("Pickupable");
-
+                await sequence.ToUniTask(cancellationToken: OnDestoryCancellationToken);
+                _sword.gameObject.layer = LayerMask.NameToLayer("Pickupable");
             }
             catch (OperationCanceledException)
             {
                 sequence.Kill();
             }
-            
+        }
 
-        }
-        public void DetachListeners()
-        {
-            if (TSPuzzleManager.Instance)
-            {
-                TSPuzzleManager.Instance.OnPuzzleCompleted -= MovePillar;
-            }
-        }
-        
         protected override void CleanUp()
         {
             base.CleanUp();

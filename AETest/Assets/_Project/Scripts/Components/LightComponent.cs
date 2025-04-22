@@ -1,82 +1,106 @@
 using System;
-using System.Collections;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
-namespace AE
+namespace AE._Project.Scripts.Components
 {
     public enum LightMode
     {
         Static,
         Pulsating
     }
-    
+
     [Serializable]
     public sealed class PulseData
     {
-        [SerializeField] public Color pulseColor = Color.yellow;
-        [SerializeField] public float pulseTemperature;
-        [SerializeField, Min(0.1f)] public Vector2 pulseFrequencyRange = new Vector2(5, 10);
-        [SerializeField, Min(0.2f)] public float pulseDuration = 1f;
-        [SerializeField, Range(1.0f, 100f)] public float pulsatingIntensityModifier = 1.0f;
-        [SerializeField, Range(1.0f, 100f)] public float pulsatingRangeModifier = 1.0f;
+        [FormerlySerializedAs("pulseColor")] [SerializeField]
+        public Color _pulseColor = Color.yellow;
+
+        [FormerlySerializedAs("pulseTemperature")] [SerializeField]
+        public float _pulseTemperature;
+
+        [FormerlySerializedAs("pulseFrequencyRange")] [SerializeField] [Min(0.1f)]
+        public Vector2 _pulseFrequencyRange = new(5, 10);
+
+        [FormerlySerializedAs("pulseDuration")] [SerializeField] [Min(0.2f)]
+        public float _pulseDuration = 1f;
+
+        [FormerlySerializedAs("pulsatingIntensityModifier")] [SerializeField] [Range(1.0f, 100f)]
+        public float _pulsatingIntensityModifier = 1.0f;
+
+        [FormerlySerializedAs("pulsatingRangeModifier")] [SerializeField] [Range(1.0f, 100f)]
+        public float _pulsatingRangeModifier = 1.0f;
     }
 
     /// <summary>
-    /// Handles light settings
+    ///     Handles light settings
     /// </summary>
     [RequireComponent(typeof(Light))]
     public sealed class LightComponent : MonoBehaviour
     {
-  
-        
-        [Header("Light Settings")]
-        [SerializeField] LightMode lightMode = LightMode.Static;
+        [FormerlySerializedAs("lightMode")] [Header("Light Settings")] [SerializeField]
+        private LightMode _lightMode = LightMode.Static;
 
-        [SerializeField] private PulseData pulseData = new PulseData();
+        [FormerlySerializedAs("pulseData")] [SerializeField]
+        private PulseData _pulseData = new();
 
-        [Header("Debug")] 
+        // [Header("Debug")] 
         [SerializeField] private Light _light;
-        [SerializeField] private float baseIntensity;
-        [SerializeField] private float baseRange;
-        [SerializeField] private float baseTemperature;
-        [SerializeField] private Color baseColor;
-        [SerializeField] private Color currentColor;
 
-        public PulseData PulseData => pulseData;
-        
-        private CancellationTokenSource _cts = new CancellationTokenSource();
-        
+        [FormerlySerializedAs("baseIntensity")] [SerializeField]
+        private float _baseIntensity;
+
+        [FormerlySerializedAs("baseRange")] [SerializeField]
+        private float _baseRange;
+
+        [FormerlySerializedAs("baseTemperature")] [SerializeField]
+        private float _baseTemperature;
+
+        [FormerlySerializedAs("baseColor")] [SerializeField]
+        private Color _baseColor;
+
+        [FormerlySerializedAs("currentColor")] [SerializeField]
+        private Color _currentColor;
+
+        private Tween _colorChangeTween;
+
+        private CancellationTokenSource _cts = new();
+
+        public PulseData PulseData => _pulseData;
+
         public Light Light => _light;
-        
-        Tween colorChangeTween;
-        private float PulseRange => pulseData.pulsatingRangeModifier * baseRange;
-        private float PulseIntensity => pulseData.pulsatingIntensityModifier * baseIntensity;
+        private float PulseRange => _pulseData._pulsatingRangeModifier * _baseRange;
+        private float PulseIntensity => _pulseData._pulsatingIntensityModifier * _baseIntensity;
 
         private void Awake()
         {
             _light = GetComponent<Light>();
-            baseRange = _light.range;
-            baseIntensity = _light.intensity;
-            baseColor = _light.color;
-            baseTemperature = _light.colorTemperature;
+            _baseRange = _light.range;
+            _baseIntensity = _light.intensity;
+            _baseColor = _light.color;
+            _baseTemperature = _light.colorTemperature;
 
-            currentColor = baseColor;
+            _currentColor = _baseColor;
         }
 
-        private void Start()
+        private void Start() => ChangeLightMode(_lightMode, true);
+
+        private void OnDestroy()
         {
-            ChangeLightMode(lightMode, true);
+            DOTween.Kill(this);
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
-        
-        
+
+
         /* NOTE: Used during tests
         private void Update()
         {
-           
+
             if (Input.GetKeyDown(KeyCode.G))
             {
                 ChangeLightMode(LightMode.Static, true);
@@ -94,11 +118,15 @@ namespace AE
         */
         public void ChangeLightMode(LightMode newMode, bool forceChange = false)
         {
-            if(lightMode == newMode && !forceChange) return; 
-            lightMode = newMode;
-            switch (lightMode)
+            if (_lightMode == newMode && !forceChange)
             {
-                case  LightMode.Static:
+                return;
+            }
+
+            _lightMode = newMode;
+            switch (_lightMode)
+            {
+                case LightMode.Static:
                     StaticLight();
                     return;
                 case LightMode.Pulsating:
@@ -114,12 +142,12 @@ namespace AE
 
         private void StopPulse()
         {
-            if (_cts != null && !_cts.IsCancellationRequested)
+            if (_cts is { IsCancellationRequested: false })
             {
                 _cts.Cancel();
             }
         }
-         
+
         private void PulseLight()
         {
             LoopPulse(_cts.Token).Forget();
@@ -133,13 +161,13 @@ namespace AE
                 {
                     await IncreasePulse(token);
                     await DecreasePulse(token);
-                    float delay = Random.Range(pulseData.pulseFrequencyRange.x, pulseData.pulseFrequencyRange.y);
+                    var delay = Random.Range(_pulseData._pulseFrequencyRange.x, _pulseData._pulseFrequencyRange.y);
                     await UniTask.WaitForSeconds(delay, cancellationToken: token);
                 }
             }
             catch (OperationCanceledException)
             {
-                Debug.LogWarning($"LoopPulse cancelled");
+                Debug.LogWarning("LoopPulse cancelled");
                 _cts.Dispose();
                 _cts = new CancellationTokenSource();
             }
@@ -147,25 +175,30 @@ namespace AE
 
         private async UniTask IncreasePulse(CancellationToken token)
         {
-            
-            float halfDuration = pulseData.pulseDuration / 2f;
-            Sequence sequence = DOTween.Sequence();
-            
+            var halfDuration = _pulseData._pulseDuration / 2f;
+            var sequence = DOTween.Sequence();
+
             // Intensity
             sequence.Append(_light.DOIntensity(PulseIntensity, halfDuration));
-            
+
             // Temperature
             if (_light.useColorTemperature)
-                sequence.Join(DOTween.To(() => _light.colorTemperature, x => _light.colorTemperature = x, pulseData.pulseTemperature, halfDuration));
+            {
+                sequence.Join(DOTween.To(() => _light.colorTemperature, x => _light.colorTemperature = x,
+                    _pulseData._pulseTemperature, halfDuration));
+            }
             // Color
-            else sequence.Join(_light.DOColor(pulseData.pulseColor, halfDuration));
-            
+            else
+            {
+                sequence.Join(_light.DOColor(_pulseData._pulseColor, halfDuration));
+            }
+
             // Range
             sequence.Join(DOTween.To(() => _light.range, x => _light.range = x, PulseRange, halfDuration));
 
             try
             {
-                await sequence.ToUniTask(cancellationToken:token);
+                await sequence.ToUniTask(cancellationToken: token);
             }
             catch (OperationCanceledException)
             {
@@ -175,20 +208,26 @@ namespace AE
 
         private async UniTask DecreasePulse(CancellationToken token)
         {
-            float halfDuration = pulseData.pulseDuration / 2f;
-            
-            Sequence sequence = DOTween.Sequence();
+            var halfDuration = _pulseData._pulseDuration / 2f;
+
+            var sequence = DOTween.Sequence();
             // Intensity
-            sequence.Append(_light.DOIntensity(baseIntensity, halfDuration));
+            sequence.Append(_light.DOIntensity(_baseIntensity, halfDuration));
             // Temperature
             if (_light.useColorTemperature)
-                sequence.Join(DOTween.To(() => _light.colorTemperature, x => _light.colorTemperature = x, baseTemperature, halfDuration));
+            {
+                sequence.Join(DOTween.To(() => _light.colorTemperature, x => _light.colorTemperature = x,
+                    _baseTemperature, halfDuration));
+            }
             // Color
-            else sequence.Join(_light.DOColor(currentColor, halfDuration));
+            else
+            {
+                sequence.Join(_light.DOColor(_currentColor, halfDuration));
+            }
 
             // Range
-            sequence.Join(DOTween.To(() => _light.range, x => _light.range = x, baseRange, halfDuration));
-            
+            sequence.Join(DOTween.To(() => _light.range, x => _light.range = x, _baseRange, halfDuration));
+
             try
             {
                 await sequence.ToUniTask(cancellationToken: token);
@@ -204,21 +243,18 @@ namespace AE
             _light.useColorTemperature = value;
         }
 
-        public void ResetColorToDefault() => SetCurrentColor(baseColor);
+        public void ResetColorToDefault()
+        {
+            SetCurrentColor(_baseColor);
+        }
+
         public void SetCurrentColor(Color color, float colorDurationChange = 1f)
         {
-            colorChangeTween?.Kill();
-            
-            currentColor = color;
-            
-            colorChangeTween = _light.DOColor(currentColor, colorDurationChange);
-        }
-        private void OnDestroy()
-        {
-            DOTween.Kill(this);
-            _cts?.Cancel();
-            _cts?.Dispose();
+            _colorChangeTween?.Kill();
+
+            _currentColor = color;
+
+            _colorChangeTween = _light.DOColor(_currentColor, colorDurationChange);
         }
     }
-    
 }

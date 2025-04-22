@@ -1,11 +1,9 @@
-using UnityEngine;
-
-namespace AE.Extensions
+namespace AE._Project.Scripts.Extensions
 {
-    public static class PrimitiveTypeExtentions 
+    public static class PrimitiveTypeExtentions
     {
         /// <summary>
-        /// Remaps value between given ranges
+        ///     Remaps value between given ranges
         /// </summary>
         public static float Remap(this float value, float inMin, float inMax, float outMin, float outMax)
         {

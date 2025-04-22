@@ -1,13 +1,9 @@
-using AE.InteractableSystem;
-using UnityEngine;
+using AE._Project.Scripts.InteractableSystem;
 
-namespace AE.Puzzles.SwordCoffinPuzzle
+namespace AE._Project.Scripts.Puzzles.SwordCoffinPuzzle
 {
     public class InteractableSword : InteractableItem
     {
-        protected override void OnInteraction()
-        {
-            base.OnInteraction();
-        }
+        
     }
 }

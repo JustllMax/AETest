@@ -1,55 +1,77 @@
-using AE.Core.Generics;
-using AE.Interfaces;
-using AE.Managers;
+using AE._Project.Scripts.Core.Generics;
+using AE._Project.Scripts.Interfaces;
+using AE._Project.Scripts.UI.TextManagement;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace AE.InteractableSystem
+namespace AE._Project.Scripts.InteractableSystem
 {
-
     /// <summary>
     /// Represents base class for object that can be interacted with
     /// </summary>
     [RequireComponent(typeof(Outline))]
     public abstract class InteractableBase : InGameMonoBehaviour, IInteractable
     {
-        public abstract bool CanBeInteractedWith { get; protected set; }
+        [FormerlySerializedAs("outline")] [Foldout("Outline Settings")] [SerializeField]
+        private Outline _outline;
 
-        [Foldout("Outline Settings")][SerializeField] private Outline outline;
-        [Foldout("Outline Settings")][SerializeField] private Color outlineColor = Color.yellow;
-        
-        [Foldout("General")][SerializeField] protected string itemDescription;
+        [FormerlySerializedAs("outlineColor")] [Foldout("Outline Settings")] [SerializeField]
+        private Color _outlineColor = Color.yellow;
 
-        private Color outlineColorVisible;
-        private Color outlineColorInvisible;
+        [FormerlySerializedAs("itemDescription")] [Foldout("General")] [SerializeField]
+        protected string _itemDescription;
+
+        private Color _outlineColorInvisible;
+
+        private Color _outlineColorVisible;
 
         protected virtual void Awake()
         {
-            if (outline == null) outline = GetComponent<Outline>();
-            outlineColorVisible = outlineColor;
-            outlineColorInvisible = new Color(outlineColor.r, outlineColor.g, outlineColor.b, 0f);
-            outline.OutlineMode = Outline.Mode.OutlineVisible;
+            if (_outline == null)
+            {
+                _outline = GetComponent<Outline>();
+            }
+
+            _outlineColorVisible = _outlineColor;
+            _outlineColorInvisible = new Color(_outlineColor.r, _outlineColor.g, _outlineColor.b, 0f);
+            _outline.OutlineMode = Outline.Mode.OutlineVisible;
             HideOutline();
         }
 
         /// <summary>
-        /// Logic called on interaction
+        ///     asda
         /// </summary>
-        protected abstract void OnInteraction();
+        public abstract bool CanBeInteractedWith { get; protected set; }
 
         public void Interact()
         {
-            if (!CanBeInteractedWith) return;
+            if (!CanBeInteractedWith)
+            {
+                return;
+            }
+
             OnInteraction();
         }
 
+        /// <summary>
+        ///     Logic called on interaction
+        /// </summary>
+        protected abstract void OnInteraction();
+
         protected void DisplayDefaultInteraction()
         {
-            TextManager.Instance?.ShowText(itemDescription);
+            TextManager.Instance?.ShowText(_itemDescription);
         }
-        
-        public void ShowOutline() => outline.OutlineColor = outlineColorVisible;
-        public void HideOutline() => outline.OutlineColor = outlineColorInvisible;
 
+        public void ShowOutline()
+        {
+            _outline.OutlineColor = _outlineColorVisible;
+        }
+
+        public void HideOutline()
+        {
+            _outline.OutlineColor = _outlineColorInvisible;
+        }
     }
 }
